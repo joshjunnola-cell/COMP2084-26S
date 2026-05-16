@@ -1,0 +1,11 @@
+﻿@page
+@model Category
+
+<h1>Category Detail</h1>
+
+<table class="table table-bordered table-striped">
+    <tr><td>ID</td><td>@Model.CategoryId</td></tr>
+    <tr><td>Name</td><td>@Model.Name</td></tr>
+</table>
+
+<a asp-controller="Categories" asp-action="List" class="btn btn-secondary">Back</a>
