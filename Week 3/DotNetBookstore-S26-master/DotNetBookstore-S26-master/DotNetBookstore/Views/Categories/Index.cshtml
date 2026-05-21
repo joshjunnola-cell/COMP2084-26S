@@ -1,0 +1,27 @@
+﻿@* This is the view for displaying the list of categories. It uses the model passed from the controller, which is an IEnumerable of Category objects. Each category is displayed as a link that navigates to the Browse action of the Categories controller, passing the category name as a route parameter. *@
+
+@* @model IEnumerable is a declaration that specifies the type of the model being passed to the view. In this case, it's an IEnumerable of Category objects. *@
+@model IEnumerable<DotNetBookstore.Models.Category>
+
+@{
+        ViewData["Title"] = "Book Categories";
+
+}
+<h1>Book Categories</h1>
+<ul>
+    @* This foreach loop iterates over the list of categories passed to the view and generates a list item for each category. *@
+    @foreach (var category in Model)
+    {
+        @* Tag Helpers: asp-controller, asp-action, asp-route-category
+        asp-controller specifies the controller to use, asp-action specifies the action method to call, and asp-route-category specifies the route parameter to pass to the action method.
+        Tag Helpers like asp-controller, asp-action, and asp-route-* generate URLs dynamically in HTML elements. *@    
+        <li><a asp-controller="Categories" asp-action="Browse" asp-route-category="@category.Name">@category.Name</a></li>
+    }
+
+    @* The following is a hardcoded example of how the links would look if we were not using a model to generate them dynamically. This is commented out because we are using the model to generate the links instead. *@
+    @*
+    <li><a asp-controller="Categories" asp-action="Browse" asp-route-category="Category 1">Category 1</a></li>
+    <li><a asp-controller="Categories" asp-action="Browse" asp-route-category="Category 2">Category 2</a></li>
+    <li><a asp-controller="Categories" asp-action="Browse" asp-route-category="Category 3">Category 3</a></li> 
+    *@
+</ul>
