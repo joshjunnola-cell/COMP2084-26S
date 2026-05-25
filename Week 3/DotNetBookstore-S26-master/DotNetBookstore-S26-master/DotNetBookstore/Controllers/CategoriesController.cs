@@ -52,5 +52,22 @@ namespace DotNetBookstore.Controllers
             // In a real application, you would typically retrieve the books for the specified category from a database and pass them to the view. For demonstration purposes, we'll just pass the category name to the view using ViewBag.
             return View();
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Category category)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(category);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
