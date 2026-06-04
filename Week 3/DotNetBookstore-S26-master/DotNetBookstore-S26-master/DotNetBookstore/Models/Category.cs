@@ -12,6 +12,7 @@ namespace DotNetBookstore.Models
             get; set;
         }
         // The Name property is a string that holds the name of the category. It has both a getter and a setter, allowing you to read and modify its value. It is initialized to an empty string to ensure it has a default value.
+        
         public string Name { get; set; } = string.Empty;
     }
 }
