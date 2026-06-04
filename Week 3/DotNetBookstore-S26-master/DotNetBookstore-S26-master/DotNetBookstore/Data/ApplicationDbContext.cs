@@ -10,7 +10,7 @@ namespace DotNetBookstore.Data
         {
         }
 
-        // DbSets for for all entities - these represent the tables in the database
+        // DbSets for all entities - these represent the tables in the database
         // Each DbSet property corresponds to a table in the database, and the type parameter (e.g., Category, Book, CartItem, Order, OrderDetail) represents the entity type that will be stored in that table. These properties allow you to query and manipulate data for each of these entities using Entity Framework Core's LINQ queries and other data access methods.
         public DbSet<Category> Categories
         {

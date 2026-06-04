@@ -1,6 +1,14 @@
+using System;
 using DotNetBookstore.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
+// Enable managed SNI to avoid loading the native Microsoft.Data.SqlClient.SNI.dll
+// which can fail on long path names (e.g. deep OneDrive folders). Setting
+// these switches forces the managed networking implementation.
+AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.UseManagedNetworkingOnWindows", true);
+AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.UseManagedSNI", true);
+AppContext.SetSwitch("System.Data.SqlClient.UseManagedSNI", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
