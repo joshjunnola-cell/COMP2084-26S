@@ -1,0 +1,337 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Books/Edit.cshtml
+ * PURPOSE: The "Edit Book" form. Pre-populates all fields with the existing
+ *          book's data fetched by BooksController.Edit (GET), and posts
+ *          changes to BooksController.Edit (POST) for validation and saving.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Hidden input for BookId     — <input type="hidden" asp-for="BookId" />
+ *                                   embeds the primary key in the form so the
+ *                                   controller knows WHICH book to update.
+ *                                   Without it, the POST action receives BookId = 0.
+ *  2. Pre-populated fields        — because the controller passes the existing Book
+ *                                   object as the model, asp-for inputs render with
+ *                                   value="..." already filled in from the model.
+ *  3. Category pre-selection      — the controller passes book.CategoryId as the
+ *                                   4th argument to SelectList, so the dropdown
+ *                                   opens with the book's current category selected.
+ *  4. Existing image display      — the current cover image (if any) is shown in a
+ *                                   small thumbnail so the user knows what they will
+ *                                   replace. The thumbnail's src is built as
+ *                                   ~/img/books/@Model.Image — the tilde resolves to
+ *                                   the application root path (wwwroot/).
+ *  5. enctype="multipart/form-data" — required for file upload; same as Create.
+ *  6. Leave-empty-to-keep logic   — if the user submits without selecting a new file
+ *                                   AND without checking the delete checkbox, the
+ *                                   controller preserves the existing Image filename
+ *                                   (read from the DB with AsNoTracking) so the cover
+ *                                   is not accidentally wiped when editing other fields.
+ *  7. FileReader API (JS)         — same as Create: reads the newly-selected file in
+ *                                   the browser for a live preview before upload.
+ *  8. Same structure as Create    — Edit and Create share almost identical markup.
+ *                                   The key differences are: page title, hidden BookId
+ *                                   field, existing image thumbnail, file-input hint
+ *                                   text, and the submit button label.
+ *  9. Delete cover image checkbox — name="deleteImage" posts "true" to the Edit POST
+ *                                   action when checked. The controller (Step 11 fix)
+ *                                   deletes the file from disk and sets Image = null.
+ *                                   JS dims the thumbnail while checked and auto-
+ *                                   unchecks it if the user then selects a new file
+ *                                   (new upload always takes priority over deletion).
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Book
+
+@{
+    ViewData["Title"] = "Edit Book";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-5 col-lg-6 col-md-8">
+
+        @* ── Back button + page title ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="mb-0 fw-bold section-title">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit Book
+                </h2>
+                @* Model?.Title uses null-conditional in case Model is null (rare but safe) *@
+                <p class="text-muted mb-0 mt-1 small">Update the details for <strong>@Model?.Title</strong>.</p>
+            </div>
+        </div>
+
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+
+                @*
+                   enctype="multipart/form-data" — required so the new cover image
+                   bytes are transmitted along with the other form fields.
+                   asp-action="Edit" posts to BooksController.Edit (POST).
+                *@
+                <form asp-action="Edit" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    @* IMPORTANT: hidden field for BookId — the controller needs this
+                       to identify which record to update in the database.
+                       Without it, book.BookId = 0 in the POST action. *@
+                    <input type="hidden" asp-for="BookId" />
+
+                    @* ── Author ───────────────────────────────────────────── *@
+                    <div class="mb-3">
+                        <label asp-for="Author" class="form-label fw-semibold small text-uppercase text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            @* Value is pre-filled from the model by the asp-for Tag Helper *@
+                            <input asp-for="Author" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Author" class="text-danger small"></span>
+                    </div>
+
+                    @* ── Title ────────────────────────────────────────────── *@
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold small text-uppercase text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-book"></i></span>
+                            <input asp-for="Title" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    @* ── Cover Image: current thumbnail + replace-file input ─ *@
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-uppercase text-muted">
+                            <i class="bi bi-image me-1"></i>Cover Image
+                        </label>
+
+                        @*
+                           Show the existing cover thumbnail if this book already has an image.
+                           src="~/img/books/@Model.Image" — the tilde (~) resolves to the
+                           application root (wwwroot/), so the full served path becomes:
+                           /img/books/{guid-filename.jpg}
+                           onerror hides the broken img tag rather than showing a broken icon.
+                        *@
+                        @if (!string.IsNullOrWhiteSpace(Model?.Image))
+                        {
+                            @*
+                               id="existingThumbnailRow" — targeted by JS to dim/restore
+                               the thumbnail when the delete checkbox is toggled.
+                            *@
+                            <div id="existingThumbnailRow" class="mb-2 d-flex align-items-center gap-3"
+                                 style="transition: opacity .25s ease, filter .25s ease;">
+                                <div class="d-inline-block rounded-2 overflow-hidden shadow-sm flex-shrink-0"
+                                     style="width:80px;height:120px;background:var(--brand-gradient-light)">
+                                    <img src="~/img/books/@Model.Image" alt="Current cover"
+                                         style="width:100%;height:100%;object-fit:cover;"
+                                         onerror="this.parentElement.style.display='none'" />
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-check-circle text-success me-1"></i>Current cover image saved.
+                                    <br />Upload a new file below to replace it, or
+                                    <br />check the box below to remove it entirely.
+                                </div>
+                            </div>
+
+                            @*
+                               Delete-image checkbox — name="deleteImage" value="true":
+                               An unchecked HTML checkbox is NOT submitted to the server, so
+                               when left unchecked the controller parameter defaults to false
+                               (preserve existing). When checked, "deleteImage=true" is posted
+                               and the controller deletes the file from disk (Step 11 fix).
+                               JS dims the thumbnail while checked as a visual confirmation;
+                               it auto-unchecks if the user selects a new file (upload wins).
+                            *@
+                            <div class="form-check mt-1 mb-2 p-2 rounded-2"
+                                 style="background:rgba(220,38,38,.05); border:1px solid rgba(220,38,38,.15);">
+                                <input type="checkbox" class="form-check-input" id="deleteImageCheck"
+                                       name="deleteImage" value="true" />
+                                <label class="form-check-label text-danger fw-semibold small" for="deleteImageCheck">
+                                    <i class="bi bi-trash me-1"></i>Remove current cover image
+                                </label>
+                                <div class="text-muted" style="font-size:.72rem; margin-top:.15rem;">
+                                    Check this box and save to delete the cover permanently.
+                                    Uploading a new file below will override this checkbox.
+                                </div>
+                            </div>
+                        }
+
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-upload"></i></span>
+                            @*
+                               type="file"   — opens the OS file picker
+                               name="Image"  — matches the IFormFile parameter in Edit POST
+                               id="imageInput" — referenced by the JS preview script
+                               accept="image/png, image/jpeg" — OS picker filter hint
+                            *@
+                            <input type="file" name="Image" id="imageInput"
+                                   class="form-control" accept="image/png, image/jpeg" />
+                        </div>
+                        @*
+                           Hint text differs from Create: the user can leave the picker
+                           empty and the existing cover will be preserved by the controller.
+                        *@
+                        <div class="form-text text-muted small">
+                            Leave empty to keep the current cover image. Accepted formats: PNG, JPEG.
+                        </div>
+
+                        @* Live preview of the newly-selected file — hidden until a file is chosen *@
+                        <div id="imagePreviewWrapper" class="mt-3 text-center d-none">
+                            <div class="d-inline-block rounded-2 overflow-hidden shadow-sm"
+                                 style="width:110px;height:160px;background:var(--brand-gradient-light)">
+                                <img id="imagePreview" src="" alt="New cover preview"
+                                     style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                            <div class="text-muted small mt-1">New Cover Preview</div>
+                        </div>
+                    </div>
+
+                    @* ── Price ────────────────────────────────────────────── *@
+                    <div class="mb-3">
+                        <label asp-for="Price" class="form-label fw-semibold small text-uppercase text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Price" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    @* ── Mature Content toggle ────────────────────────────── *@
+                    <div class="mb-3">
+                        <div class="form-check form-switch p-3 rounded-2 bg-indigo-subtle">
+                            <input asp-for="MatureContent" class="form-check-input" role="switch" id="matureSwitch" />
+                            <label asp-for="MatureContent" class="form-check-label fw-semibold" for="matureSwitch">
+                                <i class="bi bi-exclamation-triangle me-1 text-warning"></i>Mature Content
+                            </label>
+                            <div class="text-muted small mt-1">
+                                Enable for books with adult themes, violence, or explicit content.
+                            </div>
+                        </div>
+                        <span asp-validation-for="MatureContent" class="text-danger small"></span>
+                    </div>
+
+                    @* ── Category dropdown ─────────────────────────────────── *@
+                    @* The controller pre-selects the book's current CategoryId in the SelectList,
+                       so the correct category is highlighted when the Edit form opens. *@
+                    <div class="mb-4">
+                        <label asp-for="CategoryId" class="form-label fw-semibold small text-uppercase text-muted">
+                            <i class="bi bi-tag me-1"></i>Category
+                        </label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select">
+                            <option value="">— Select a Category —</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <hr class="divider-gradient" />
+
+                    @* ── Action buttons ────────────────────────────────────── *@
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>Save Changes
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        /*
+         * EDIT-PAGE IMAGE SCRIPTS
+         * ────────────────────────
+         * Two independent behaviours are wired up here:
+         *
+         * 1. LIVE COVER PREVIEW (FileReader API)
+         *    Same as Books/Create.cshtml. When the user picks a new file in the
+         *    file input the browser reads it locally (no network round-trip) and
+         *    shows the image in the #imagePreviewWrapper div so the user can
+         *    confirm it looks right before saving.
+         *
+         * 2. DELETE-IMAGE CHECKBOX FEEDBACK
+         *    When the "Remove current cover image" checkbox (#deleteImageCheck) is
+         *    checked, the existing thumbnail row is dimmed (opacity + greyscale)
+         *    to give visual confirmation that the image will be removed on save.
+         *    If the user then selects a new file, the checkbox is automatically
+         *    unchecked and the thumbnail restored — because a new upload always
+         *    takes priority over the delete flag in the controller (Step 11).
+         */
+        (function () {
+            var input       = document.getElementById('imageInput');
+            var wrapper     = document.getElementById('imagePreviewWrapper');
+            var preview     = document.getElementById('imagePreview');
+            var deleteCheck = document.getElementById('deleteImageCheck');
+            var thumbRow    = document.getElementById('existingThumbnailRow');
+
+            /* ── 1. Live preview ─────────────────────────────────────────── */
+            if (input) {
+                input.addEventListener('change', function () {
+                    var file = input.files && input.files[0];
+
+                    if (!file) {
+                        // No file selected (selection cleared) — hide new preview
+                        if (wrapper) wrapper.classList.add('d-none');
+                        return;
+                    }
+
+                    // If the user selects a new file, the delete checkbox no longer
+                    // applies (upload wins) — uncheck it and restore the thumbnail.
+                    if (deleteCheck && deleteCheck.checked) {
+                        deleteCheck.checked = false;
+                        restoreThumbnail();
+                    }
+
+                    // Read the selected file as a base-64 Data URL for inline display
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        if (preview) preview.src = e.target.result;
+                        if (wrapper) wrapper.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            /* ── 2. Delete-image checkbox feedback ───────────────────────── */
+            if (deleteCheck) {
+                deleteCheck.addEventListener('change', function () {
+                    if (deleteCheck.checked) {
+                        // Dim the existing thumbnail to signal pending deletion
+                        dimThumbnail();
+                    } else {
+                        // Checkbox unchecked — restore the thumbnail to normal
+                        restoreThumbnail();
+                    }
+                });
+            }
+
+            /* Helpers that apply/remove the dim effect on the thumbnail row */
+            function dimThumbnail() {
+                if (thumbRow) {
+                    thumbRow.style.opacity = '0.3';
+                    thumbRow.style.filter  = 'grayscale(100%)';
+                }
+            }
+            function restoreThumbnail() {
+                if (thumbRow) {
+                    thumbRow.style.opacity = '';
+                    thumbRow.style.filter  = '';
+                }
+            }
+        })();
+    </script>
+}

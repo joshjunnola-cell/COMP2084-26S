@@ -1,0 +1,321 @@
+﻿@model IEnumerable<DotNetBookstore.Models.Book>
+@{
+    var categoryName = ViewData["CategoryName"] as string ?? "Category";
+    ViewData["Title"] = ViewData["Title"] ?? ($"Shop - {categoryName}");
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent p-0 mb-2">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index">Shop</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@categoryName</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="display-5 fw-bold mb-0">@categoryName</h1>
+            <p class="text-muted mb-0">Books in this category. Click a book to view details or add to cart.</p>
+        </div>
+        <div>
+            <span class="badge bg-secondary fs-6">@((Model?.Count() ?? 0)) books</span>
+        </div>
+    </div>
+</div>
+
+@if (!Model?.Any() ?? true)
+{
+    <div class="container">
+        <div class="alert alert-info">No books are available in this category yet. <a asp-controller="Shop" asp-action="Index">Browse other categories</a>.</div>
+    </div>
+}
+else
+{
+    <div class="container mb-3">
+        <div class="row gx-2 gy-2 align-items-center">
+            <div class="col-md-6 d-flex flex-wrap gap-2 align-items-center">
+                <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Min price" min="0" step="0.01" />
+                <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Max price" min="0" step="0.01" />
+                <select id="matureFilter" class="form-select form-select-sm">
+                    <option value="all">All content</option>
+                    <option value="allages">All ages only</option>
+                    <option value="mature">Mature only</option>
+                </select>
+                <button id="applyFilters" class="btn btn-outline-secondary btn-sm">Apply</button>
+                <button id="clearFilters" class="btn btn-link btn-sm">Clear</button>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end align-items-center gap-2">
+                <label class="me-2 mb-0 small">Sort</label>
+                <select id="sortSelect" class="form-select form-select-sm w-auto">
+                    <option value="relevance">Relevance</option>
+                    <option value="price-asc">Price: Low → High</option>
+                    <option value="price-desc">Price: High → Low</option>
+                    <option value="title-asc">Title: A → Z</option>
+                    <option value="title-desc">Title: Z → A</option>
+                </select>
+                <label class="me-2 mb-0 small">Show</label>
+                <select id="pageSize" class="form-select form-select-sm w-auto">
+                    <option value="6">6</option>
+                    <option value="9">9</option>
+                    <option value="12">12</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="shopGrid" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+        @foreach (var book in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 position-relative"
+                     data-id="@book.BookId"
+                     data-title="@book.Title"
+                     data-price="@book.Price"
+                     data-mature="@(book?.MatureContent == true ? "true" : "false")"
+                     data-author="@book.Author"
+                     data-description="@System.Net.WebUtility.HtmlEncode(book.Category?.Name ?? "")"
+                     data-image="@(!string.IsNullOrWhiteSpace(book.Image) ? Url.Content(string.Format("~/img/books/{0}", book.Image)) : String.Empty)"
+                     data-category="@book.Category?.Name">
+                    @if (!string.IsNullOrEmpty(book.Image))
+                    {
+                        <img src="~/img/books/@book.Image" class="card-img-top img-fluid" alt="@book.Title" style="height:220px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height:220px;">
+                            <i class="bi bi-book-half fs-1 text-muted"></i>
+                        </div>
+                    }
+
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-success">@string.Format("{0:C}", book.Price)</span>
+                    </div>
+
+                    @if (book?.MatureContent == true)
+                    {
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-danger">Mature</span>
+                        </div>
+                    }
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-1 text-truncate">@book.Title</h5>
+                        <div class="text-muted mb-2">by @book.Author</div>
+                        <p class="card-text text-muted flex-grow-1">@book.Category?.Name</p>
+
+                        <div class="mt-3 d-flex gap-2">
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.BookId" class="btn btn-outline-primary flex-fill" aria-label="View @book.Title details">
+                                <i class="bi bi-eye me-2" aria-hidden="true"></i>View
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary p-2 rounded-circle" data-action="quickview" data-bs-toggle="modal" data-bs-target="#quickViewModal"
+                                    data-id="@book.BookId"
+                                    data-title="@Html.Raw(System.Net.WebUtility.HtmlEncode(book.Title ?? ""))"
+                                    data-author="@Html.Raw(System.Net.WebUtility.HtmlEncode(book.Author ?? ""))"
+                                    data-price="@book.Price"
+                                    data-image="@(!string.IsNullOrWhiteSpace(book.Image) ? Url.Content(string.Format("~/img/books/{0}", book.Image)) : String.Empty)"
+                                    data-desc="@Html.Raw(System.Net.WebUtility.HtmlEncode(book.Category?.Name ?? ""))"
+                                    aria-label="Preview @book.Title" title="Preview">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                            <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline-flex flex-fill" role="form">
+                                <input type="hidden" name="bookId" value="@book.BookId" />
+                                <button type="submit" class="btn btn-primary flex-fill" aria-label="Add @book.Title to cart">
+                                    <i class="bi bi-cart-plus me-2" aria-hidden="true"></i>Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Quick View modal -->
+    <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickViewTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <img id="quickViewImage" src="" class="img-fluid rounded" alt="">
+                        </div>
+                        <div class="col-md-8">
+                            <p id="quickViewAuthor" class="text-muted mb-1"></p>
+                            <p id="quickViewDescription"></p>
+                            <p id="quickViewPrice" class="fw-bold fs-4 text-success"></p>
+                            <div id="quickViewActions" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav aria-label="Shop pagination" class="mt-4">
+        <ul id="shopPagination" class="pagination justify-content-center"></ul>
+    </nav>
+
+    <script>
+        (function(){
+            // Utilities
+            const grid = document.getElementById('shopGrid');
+            let items = Array.from(grid.querySelectorAll('.col'));
+            const sortSelect = document.getElementById('sortSelect');
+            const pageSizeSelect = document.getElementById('pageSize');
+            const minPriceInput = document.getElementById('minPrice');
+            const maxPriceInput = document.getElementById('maxPrice');
+            const matureFilter = document.getElementById('matureFilter');
+            const applyBtn = document.getElementById('applyFilters');
+            const clearBtn = document.getElementById('clearFilters');
+            const paginationEl = document.getElementById('shopPagination');
+
+            let currentPage = 1;
+            function readDataset(col){
+                const card = col.querySelector('.card');
+                return {
+                    el: col,
+                    id: card.dataset.id || '',
+                    title: (card.dataset.title || '').toLowerCase(),
+                    price: parseFloat(card.dataset.price || '0'),
+                    mature: card.dataset.mature === 'true',
+                    author: card.dataset.author || '',
+                    description: card.dataset.description || '',
+                    image: card.dataset.image || ''
+                };
+            }
+
+            function applyAll(){
+                const pageSize = parseInt(pageSizeSelect.value, 10) || 6;
+                const sort = sortSelect.value;
+                const minPraw = parseFloat(minPriceInput.value);
+                const maxPraw = parseFloat(maxPriceInput.value);
+                const minP = isNaN(minPraw) ? 0 : minPraw;
+                const maxP = isNaN(maxPraw) ? Infinity : maxPraw;
+                const mature = matureFilter.value;
+
+                // Read current dataset from DOM
+                let list = items.map(readDataset);
+                // filtering
+                list = list.filter(i => i.price >= minP && i.price <= maxP);
+                if(mature === 'allages') list = list.filter(i => !i.mature);
+                if(mature === 'mature') list = list.filter(i => i.mature);
+
+                // sorting
+                switch(sort){
+                    case 'price-asc': list.sort((a,b)=>a.price-b.price); break;
+                    case 'price-desc': list.sort((a,b)=>b.price-a.price); break;
+                    case 'title-asc': list.sort((a,b)=>a.title.localeCompare(b.title)); break;
+                    case 'title-desc': list.sort((a,b)=>b.title.localeCompare(a.title)); break;
+                    default: break;
+                }
+
+                // pagination
+                const total = list.length;
+                const totalPages = Math.max(1, Math.ceil(total / pageSize));
+                if(currentPage > totalPages) currentPage = totalPages;
+                const start = (currentPage -1) * pageSize;
+                const end = start + pageSize;
+                const visibleSlice = list.slice(start, end);
+                const visibleIds = new Set(visibleSlice.map(i=>i.id));
+
+                // Reorder DOM to match sorted list (filtered results first), then append remaining items in their existing order
+                const fragment = document.createDocumentFragment();
+                // Append filtered & sorted items (so they appear first in the grid)
+                list.forEach(item => fragment.appendChild(item.el));
+                // Append any items not in the filtered list to preserve them (they will be hidden)
+                items.forEach(el => {
+                    if(!list.some(l => l.el === el)) fragment.appendChild(el);
+                });
+                // Replace grid contents with fragment (moves existing nodes)
+                grid.innerHTML = '';
+                grid.appendChild(fragment);
+
+                // Update items array to reflect new DOM order
+                items = Array.from(grid.querySelectorAll('.col'));
+
+                // Show/hide according to pagination
+                items.forEach(col => {
+                    const card = col.querySelector('.card');
+                    const id = card?.dataset?.id || '';
+                    col.style.display = visibleIds.has(id) ? '' : 'none';
+                });
+
+                renderPagination(totalPages);
+            }
+
+            function renderPagination(totalPages){
+                paginationEl.innerHTML = '';
+                function createLi(label, page, disabled){
+                    const li = document.createElement('li');
+                    li.className = 'page-item' + (disabled ? ' disabled' : '') + (page===currentPage ? ' active' : '');
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.textContent = label;
+                    a.addEventListener('click', e=>{e.preventDefault(); if(!disabled){ currentPage = page; applyAll(); window.scrollTo({top: grid.offsetTop-100, behavior:'smooth'}); }});
+                    li.appendChild(a);
+                    return li;
+                }
+                // prev
+                paginationEl.appendChild(createLi('Prev', Math.max(1, currentPage-1), currentPage===1));
+                // pages (limit to 7)
+                const maxVisible = 7;
+                let start = Math.max(1, currentPage - Math.floor(maxVisible/2));
+                let end = Math.min(totalPages, start + maxVisible -1);
+                if(end - start < maxVisible -1) start = Math.max(1, end - maxVisible +1);
+                for(let p = start; p<=end; p++) paginationEl.appendChild(createLi(p, p, false));
+                // next
+                paginationEl.appendChild(createLi('Next', Math.min(totalPages, currentPage+1), currentPage===totalPages));
+            }
+
+            // Quick view handling (populate modal on Bootstrap show event)
+            const quickModalEl = document.getElementById('quickViewModal');
+            if (quickModalEl) {
+                quickModalEl.addEventListener('show.bs.modal', function(ev){
+                    const trigger = ev.relatedTarget; // the button that opened the modal
+                    const title = trigger?.dataset?.title || '';
+                    const author = trigger?.dataset?.author || '';
+                    const desc = trigger?.dataset?.desc ? decodeHtml(trigger.dataset.desc) : '';
+                    const img = trigger?.dataset?.image || '';
+                    const price = trigger?.dataset?.price || '';
+                    const id = trigger?.dataset?.id || '';
+
+                    document.getElementById('quickViewTitle').textContent = title;
+                    document.getElementById('quickViewAuthor').textContent = author ? ('by ' + author) : '';
+                    document.getElementById('quickViewDescription').innerHTML = desc || '<em>No description available.</em>';
+                    document.getElementById('quickViewImage').src = img || '/img/placeholder.png';
+                    document.getElementById('quickViewImage').alt = title;
+                    document.getElementById('quickViewPrice').textContent = new Intl.NumberFormat(undefined, {style:'currency',currency:'USD'}).format(parseFloat(price || 0));
+
+                    const actions = document.getElementById('quickViewActions');
+                    actions.innerHTML = `
+                        <a class="btn btn-outline-primary me-2" href="/Books/Details/${id}">View details</a>
+                        <form method="post" action="/Cart/Add" class="d-inline-block">
+                            <input type="hidden" name="bookId" value="${id}" />
+                            <button class="btn btn-primary">Add to Cart</button>
+                        </form>
+                    `;
+                });
+            }
+
+            function decodeHtml(html){
+                const txt = document.createElement('textarea');
+                txt.innerHTML = html;
+                return txt.value;
+            }
+
+            // Wire controls
+            applyBtn.addEventListener('click', function(){ currentPage=1; applyAll(); });
+            clearBtn.addEventListener('click', function(){ minPriceInput.value=''; maxPriceInput.value=''; matureFilter.value='all'; sortSelect.value='relevance'; currentPage=1; applyAll(); });
+            sortSelect.addEventListener('change', function(){ currentPage=1; applyAll(); });
+            pageSizeSelect.addEventListener('change', function(){ currentPage=1; applyAll(); });
+
+            // initial render
+            applyAll();
+        })();
+    </script>
+}

@@ -1,0 +1,18 @@
+{
+    "dotnet.defaultSolution": "DotNetBookstore.slnx",
+    "editor.formatOnSave": true,
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "[razor]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    },
+    "search.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    }
+}

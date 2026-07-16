@@ -1,0 +1,166 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Books/Details.cshtml
+ * PURPOSE: Read-only view of a single book's full details — cover image,
+ *          title, author, price, category, and content rating. Reached from
+ *          the Books Index via the "View" button on each card.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Read-only view         — no form, no POST, no action buttons for saving.
+ *                              The only actions available are Edit, Delete, and
+ *                              Back. This is the "R" (Read) in CRUD.
+ *  2. @Html.DisplayFor(m=>m.Field) — a Razor helper that renders the property
+ *                              value according to any [DisplayFormat] or
+ *                              [DataType] attribute applied to it. For plain
+ *                              strings it just outputs the value as text.
+ *  3. <dl> definition list   — the semantic HTML element for key/value pairs.
+ *                              <dt> = term (label), <dd> = description (value).
+ *                              Used here for the Price / Author / Category / Rating table.
+ *  4. Two-column card layout — Bootstrap's row g-0 + col-md-3 / col-md-9 creates
+ *                              a side-by-side layout: narrow cover image on the
+ *                              left, wide details panel on the right.
+ *  5. Null-conditional ?     — Model?.Image, Model?.Category?.Name use ? to
+ *                              avoid NullReferenceException if either is null.
+ *  6. ~/img/books/ path      — the tilde (~) resolves to wwwroot/ so the browser
+ *                              fetches the uploaded file at /img/books/{filename}.
+ *  7. onerror fallback       — if the cover <img> fails to load, inline JS hides
+ *                              the broken image so the gradient placeholder shows.
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+
+        @* ── Page title + back button ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="mb-0 fw-bold section-title">
+                <i class="bi bi-eye me-2 text-info"></i>Book Details
+            </h2>
+        </div>
+
+        <div class="card shadow border-0">
+            @* p-0 removes default card padding so the two-column layout fills edge-to-edge *@
+            <div class="card-body p-0">
+                @* g-0 removes the gutter between the two columns so they touch *@
+                <div class="row g-0">
+
+                    @* ── Left column: book cover ──────────────────────────── *@
+                    <div class="col-md-3">
+                        @* book-cover-wrapper in site.css: gradient background + flex centering *@
+                        <div class="book-cover-wrapper h-100"
+                             style="min-height:280px; border-radius:var(--radius-card) 0 0 var(--radius-card);">
+                            @* Placeholder icon shows behind the image or when no image is set *@
+                            <i class="bi bi-book-half book-cover-placeholder" aria-hidden="true"></i>
+                            @* Only render <img> if the book has an image URL *@
+                            @if (!string.IsNullOrWhiteSpace(Model?.Image))
+                            {
+                                @* ~/img/books/ resolves to wwwroot/img/books/ — where uploaded covers are stored *@
+                                <img src="~/img/books/@Model.Image" alt="@Model.Title cover"
+                                     class="cover-img"
+                                     onerror="this.style.display='none'" />
+                            }
+                        </div>
+                    </div>
+
+                    @* ── Right column: book information ───────────────────── *@
+                    <div class="col-md-9">
+                        <div class="p-4 h-100 d-flex flex-column">
+
+                            @* Badges: Category + Content Rating *@
+                            <div class="mb-3 d-flex flex-wrap gap-2">
+                                @* Null-conditional: only show category badge if it was loaded *@
+                                @if (!string.IsNullOrWhiteSpace(Model?.Category?.Name))
+                                {
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2">
+                                        <i class="bi bi-tag me-1"></i>@Model.Category.Name
+                                    </span>
+                                }
+                                @if (Model?.MatureContent == true)
+                                {
+                                    <span class="badge bg-danger rounded-pill px-3 py-2">
+                                        <i class="bi bi-18-up me-1"></i>Mature Content
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success rounded-pill px-3 py-2">
+                                        <i class="bi bi-check-circle me-1"></i>All Ages
+                                    </span>
+                                }
+                            </div>
+
+                            <h3 class="fw-bold mb-1 section-title">@Model?.Title</h3>
+                            <p class="text-muted mb-3 fs-6">
+                                <i class="bi bi-person me-1"></i>by <strong>@Model?.Author</strong>
+                            </p>
+
+                            <hr class="divider-gradient" />
+
+                            @* <dl> = definition list: semantic HTML for labelled data *@
+                            <dl class="row mb-0 flex-grow-1">
+                                @* Price formatted with 2 decimal places *@
+                                <dt class="col-sm-4 text-muted small fw-semibold text-uppercase py-1">Price</dt>
+                                <dd class="col-sm-8 fw-bold fs-4 text-success py-1 mb-0">
+                                    $@Model?.Price.ToString("0.00")
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted small fw-semibold text-uppercase py-1">Author</dt>
+                                <dd class="col-sm-8 py-1 mb-0">@Model?.Author</dd>
+
+                                @* @Html.DisplayFor renders using [DisplayFormat] if specified *@
+                                <dt class="col-sm-4 text-muted small fw-semibold text-uppercase py-1">Category</dt>
+                                <dd class="col-sm-8 py-1 mb-0">
+                                    <span class="badge bg-secondary">@Html.DisplayFor(m => m.Category.Name)</span>
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted small fw-semibold text-uppercase py-1">Rating</dt>
+                                <dd class="col-sm-8 py-1 mb-0">
+                                    @if (Model?.MatureContent == true)
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-18-up me-1"></i>Mature</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>All Ages</span>
+                                    }
+                                </dd>
+                            </dl>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            @* ── Card footer: Edit / Delete / Back buttons ─────────────────── *@
+            <div class="card-footer bg-transparent d-flex flex-wrap gap-2 px-4 pb-4 pt-3">
+                @* asp-route-id passes the BookId as the {id?} URL segment *@
+                <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn btn-primary">
+                    <i class="bi bi-pencil me-1"></i>Edit Book
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model?.BookId" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </a>
+                @* ms-auto pushes the Back button to the right side *@
+                <a asp-action="Index" class="btn btn-outline-secondary ms-auto">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>

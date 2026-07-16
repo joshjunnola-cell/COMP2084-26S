@@ -1,0 +1,83 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Shared/_LoginPartial.cshtml
+ * PURPOSE: A reusable partial view that renders the authentication links in
+ *          the top-right corner of the navbar. It shows different content
+ *          depending on whether the user is logged in or not:
+ *            • Logged in  → username + Logout button
+ *            • Guest      → Register + Login links
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Partial view         — a reusable fragment of HTML (no layout of its own).
+ *                            Included in _Layout.cshtml with <partial name="..." />.
+ *                            Keeps the layout file clean and focused.
+ *  2. @inject              — injects a service directly into a view (Razor-level DI).
+ *                            Used here to access SignInManager and UserManager
+ *                            without going through a controller action.
+ *  3. SignInManager        — provided by ASP.NET Core Identity. IsSignedIn(User)
+ *                            returns true if the current HTTP request is from an
+ *                            authenticated user.
+ *  4. UserManager          — also from Identity. GetUserName(User) returns the
+ *                            display name (typically email) of the current user.
+ *  5. asp-area="Identity"  — Identity's Register/Login pages live in the "Identity"
+ *                            area (a sub-folder under /Areas). The asp-area Tag Helper
+ *                            generates the correct URL prefix for them.
+ *  6. Logout as a form     — logging out is a POST request (not a GET link) to
+ *                            prevent CSRF logout attacks. A GET link could be
+ *                            triggered by simply loading an image tag with the URL.
+ * ============================================================================
+ *@
+
+@* Inject Identity services into this view — these are registered in Program.cs *@
+@using Microsoft.AspNetCore.Identity
+@using DotNetBookstore.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    @* ── Signed-in user: show username and logout button ─────────────────────── *@
+
+    @* Link to the Identity account management page (change password, email, etc.) *@
+    <li class="nav-item">
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <i class="bi bi-person-circle me-1"></i>@User.Identity?.Name
+        </a>
+    </li>
+
+    @* Logout must be a form POST (not a plain <a> link) to prevent CSRF logout.
+       asp-route-returnUrl sends the user back to the home page after logging out. *@
+    <li class="nav-item">
+        <form class="d-flex align-items-center" asp-area="Identity" asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="nav-link btn btn-link text-white text-decoration-none">
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    @* ── Guest user: show Register and Login links ────────────────────────────── *@
+
+    @* Register: navigates to Identity's built-in /Account/Register Razor Page *@
+    <li class="nav-item">
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+            <i class="bi bi-person-plus me-1"></i>Register
+        </a>
+    </li>
+
+    @* Login: navigates to Identity's built-in /Account/Login Razor Page *@
+    <li class="nav-item">
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+        </a>
+    </li>
+}
+</ul>

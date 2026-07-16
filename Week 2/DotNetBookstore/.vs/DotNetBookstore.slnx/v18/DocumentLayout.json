@@ -1,0 +1,153 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\views\\categories\\list.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\views\\categories\\list.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\views\\categories\\featured.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\views\\categories\\featured.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|c:\\users\\joshl\\onedrive - georgian college\\school\\semester 3\\class work\\server-side scripting-asp.net\\repo\\week 2\\dotnetbookstore\\dotnetbookstore\\views\\categories\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{81E576C3-BB6B-35C6-F11E-3941DE56BE2C}|DotNetBookstore\\DotNetBookstore.csproj|solutionrelative:dotnetbookstore\\views\\categories\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Program.cs",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Program.cs",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Program.cs",
+              "RelativeToolTip": "DotNetBookstore\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-11T21:15:48.337Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "DotNetBookstore\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-25T21:13:52.53Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Category.cs",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Models\\Category.cs",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Models\\Category.cs",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Models\\Category.cs",
+              "RelativeToolTip": "DotNetBookstore\\Models\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-25T21:13:42.284Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CategoriesController.cs",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Controllers\\CategoriesController.cs",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Controllers\\CategoriesController.cs",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Controllers\\CategoriesController.cs",
+              "RelativeToolTip": "DotNetBookstore\\Controllers\\CategoriesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-16T20:53:02.274Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "List.cshtml",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\List.cshtml",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Views\\Categories\\List.cshtml",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\List.cshtml",
+              "RelativeToolTip": "DotNetBookstore\\Views\\Categories\\List.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-15T04:31:21.662Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "DotNetBookstore\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-14T21:38:17.48Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Featured.cshtml",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\Featured.cshtml",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Views\\Categories\\Featured.cshtml",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\Featured.cshtml",
+              "RelativeToolTip": "DotNetBookstore\\Views\\Categories\\Featured.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-16T21:13:31.274Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Detail.cshtml",
+              "DocumentMoniker": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\Detail.cshtml",
+              "RelativeDocumentMoniker": "DotNetBookstore\\Views\\Categories\\Detail.cshtml",
+              "ToolTip": "C:\\Users\\joshl\\OneDrive - Georgian College\\School\\Semester 3\\Class Work\\Server-Side Scripting-ASP.NET\\repo\\Week 2\\DotNetBookstore\\DotNetBookstore\\Views\\Categories\\Detail.cshtml",
+              "RelativeToolTip": "DotNetBookstore\\Views\\Categories\\Detail.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-15T04:08:46.197Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

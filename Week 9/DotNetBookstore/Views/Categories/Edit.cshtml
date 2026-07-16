@@ -1,0 +1,101 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Categories/Edit.cshtml
+ * PURPOSE: Pre-filled form for editing an existing category's name.
+ *          The controller loads the category by ID and passes it as the model,
+ *          so the input shows the current name. The user edits and submits to
+ *          CategoriesController.Edit (POST).
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Hidden CategoryId field  — <input type="hidden" asp-for="CategoryId" />
+ *                                sends the PK back to the server so the
+ *                                controller knows which row to UPDATE.
+ *                                Without it, CategoryId = 0 in the POST action.
+ *  2. Pre-populated input      — asp-for="Name" on the <input> sets the value
+ *                                attribute from the model automatically:
+ *                                value="Science Fiction" (or whatever the
+ *                                current category name is).
+ *  3. PRG pattern              — after a successful save, the controller
+ *                                redirects to Index (Post-Redirect-Get).
+ *                                This prevents the browser from resubmitting
+ *                                the form on refresh (F5).
+ *  4. Edit vs. Create          — the only structural differences from Create
+ *                                are: page title, hidden CategoryId field,
+ *                                and submit button label ("Save Changes").
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Category
+
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        @* ── Page title + back button ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="mb-0 fw-bold section-title">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit Category
+                </h2>
+                @* Show which category is being edited for clarity *@
+                <p class="text-muted mb-0 mt-1 small">
+                    Updating <strong>@Model?.Name</strong>.
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    @* IMPORTANT: hidden field — sends CategoryId to the controller
+                       so it knows which row to UPDATE (not INSERT).
+                       Without this, the POST action would try to edit CategoryId = 0. *@
+                    <input type="hidden" asp-for="CategoryId" />
+
+                    @* ── Category Name field (pre-filled from the model) ────── *@
+                    <div class="mb-4">
+                        <label asp-for="Name" class="form-label fw-semibold small text-uppercase text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            @* asp-for="Name" sets value="@Model.Name" so the current name
+                               appears in the input when the Edit page loads *@
+                            <input asp-for="Name" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <hr class="divider-gradient" />
+
+                    @* ── Action buttons ────────────────────────────────────── *@
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>Save Changes
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

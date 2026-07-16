@@ -1,0 +1,100 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Categories/Delete.cshtml
+ * PURPOSE: Confirmation page shown before permanently deleting a category.
+ *          The user sees the category name and a warning, then must click
+ *          "Yes, Delete Permanently" to proceed with the deletion.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Same two-step delete pattern as Books/Delete.cshtml:
+ *         GET  /Categories/Delete/5  → this view (confirmation)
+ *         POST /Categories/Delete/5  → CategoriesController.DeleteConfirmed (execute)
+ *  2. Danger / warning styling    — Bootstrap's alert-danger, border-danger,
+ *                                   and bg-danger card header visually communicate
+ *                                   the irreversible nature of the action.
+ *  3. FK impact warning           — categories are linked to books. If any books
+ *                                   reference this category, a database FK constraint
+ *                                   will block the delete. The warning message
+ *                                   communicates this risk to the user.
+ *  4. Minimal form                — the confirmation form posts only CategoryId
+ *                                   via a hidden field. No other user input needed.
+ *  5. Cancel = safe escape        — the Cancel button is a link (not a submit button),
+ *                                   so clicking it never triggers any data change.
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Category
+
+@{
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        @* ── Page title + back button ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="mb-0 fw-bold text-danger">
+                <i class="bi bi-trash me-2"></i>Delete Category
+            </h2>
+        </div>
+
+        @* ── Warning alert ────────────────────────────────────────────────── *@
+        @* Warns about FK impact: books assigned to this category may be affected *@
+        <div class="alert alert-danger d-flex align-items-start gap-3 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0 mt-1"></i>
+            <div>
+                <div class="fw-semibold">This action is permanent and cannot be undone.</div>
+                <div class="small mt-1 opacity-75">
+                    Deleting this category may affect books that are currently assigned to it.
+                </div>
+            </div>
+        </div>
+
+        @* ── Category preview card (red border signals danger) ────────────── *@
+        <div class="card shadow border-danger" style="border-width:2px !important;">
+
+            @* Red card header prominently shows the category name being deleted *@
+            <div class="card-header bg-danger text-white py-3"
+                 style="border-radius:var(--radius-card) var(--radius-card) 0 0 !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-tag fs-5"></i>
+                    <h5 class="mb-0 fw-bold">@Model?.Name</h5>
+                </div>
+            </div>
+
+            @* Category name as a definition list *@
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted small fw-semibold text-uppercase">Category Name</dt>
+                    <dd class="col-sm-8 fw-semibold">@Html.DisplayFor(m => m.Name)</dd>
+                </dl>
+            </div>
+
+            @* ── Confirm deletion form ─────────────────────────────────────── *@
+            <div class="card-footer bg-transparent d-flex gap-2 px-4 pb-4 pt-3">
+                @* The form posts only the CategoryId to CategoriesController.DeleteConfirmed *@
+                <form asp-action="Delete">
+                    @* Hidden field carries the PK to the server — no other data needed *@
+                    <input type="hidden" asp-for="CategoryId" />
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-trash me-1"></i>Yes, Delete Permanently
+                    </button>
+                </form>
+                @* Cancel = plain link, no form submission, no database change *@
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
