@@ -1,0 +1,366 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Home/Index.cshtml
+ * PURPOSE: The application's landing page. A pure marketing/navigation page —
+ *          no live database queries. Book data in the Best Sellers and Featured
+ *          Books sections is currently hard-coded (mocked) for UI demonstration.
+ *          See the @{ } code blocks in each section for notes on how to replace
+ *          the mock data with real DB queries in HomeController.
+ *
+ * PAGE STRUCTURE (top to bottom):
+ *  1. Hero Section         — brand gradient banner with headline and CTA buttons
+ *  2. Best Sellers         — 3 amber-themed cards with rank badges (mocked data)
+ *  3. Featured Books       — 3 indigo-themed cards with curator badges (mocked)
+ *  4. Explore / Feature Cards — navigation cards linking to Books and Categories
+ *  5. Tech Info Strip      — icons for Identity, EF Core, Bootstrap, File Upload
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Code block (at-brace) — Razor C# code block. ViewData["Title"] sets the browser
+ *                             tab title; anonymous-type arrays define the mock data.
+ *  2. Anonymous types     — new[] { new { X=1 }, new { X=2 } } creates a typed
+ *                          array without needing a named class. Fine for mock data;
+ *                          in production use a proper ViewModel or DB entity.
+ *  3. @foreach            — Razor iterates the collection and emits HTML per item.
+ *  4. Razor comments      — server-side only; never sent to the browser (at-asterisk...asterisk-at syntax).
+ *  5. asp-controller /   — Tag Helpers generate href from the MVC routing table.
+ *     asp-action           Safer than hard-coded strings.
+ *  6. asp-route-id        — Appends the id route segment: /Books/Details/{id}
+ *  7. Bootstrap 5 grid   — row/col-* classes provide a responsive CSS grid.
+ *  8. Bootstrap utilities — d-flex, gap-*, text-center, fw-bold, etc.
+ *  9. Bootstrap Icons    — bi bi-* classes render SVG icons from the CDN font.
+ * 10. Custom CSS classes  — bestseller-card, featured-card, etc. defined in site.css
+ *                          (sections 18–20) to give each home-page section its own
+ *                          distinct colour accent without touching Bootstrap.
+ * ============================================================================
+ *@
+
+@{
+    @* Set the browser tab / <title> for this page *@
+    ViewData["Title"] = "Home Page";
+
+    /*
+     * Mock Data: Best Sellers — hard-coded for UI prototyping only.
+     * To replace with real data: inject ApplicationDbContext into HomeController,
+     * query books ordered by a SalesCount column (or an IsBestSeller flag),
+     * pass the result via ViewBag.BestSellers or a typed ViewModel, and bind
+     * the foreach below to that collection instead of this local variable.
+     */
+    var bestSellers = new[]
+    {
+        new { Rank = 1, BookId = 1, Title = "Clean Code",                Author = "Robert C. Martin", Price = 34.99m, Genre = "Programming"    },
+        new { Rank = 2, BookId = 2, Title = "The Pragmatic Programmer",   Author = "Hunt & Thomas",    Price = 44.99m, Genre = "Programming"    },
+        new { Rank = 3, BookId = 3, Title = "Design Patterns",            Author = "Gang of Four",     Price = 49.99m, Genre = "Software Design" }
+    };
+
+    /*
+     * Mock Data: Featured Books — similarly mocked.
+     * In production, add a boolean IsFeatured column to the Book model and
+     * filter in HomeController: context.Books.Where(b => b.IsFeatured).Take(3)
+     */
+    var featuredBooks = new[]
+    {
+        new { BookId = 4, Title = "C# in Depth",               Author = "Jon Skeet",    Price = 39.99m, Genre = "C# / .NET",  Badge = "Editor's Choice" },
+        new { BookId = 5, Title = "ASP.NET Core in Action",    Author = "Andrew Lock",  Price = 44.99m, Genre = "Web Dev",     Badge = "Course Pick"     },
+        new { BookId = 6, Title = "Entity Framework Core",     Author = "Jon P Smith",  Price = 42.99m, Genre = "Data Access", Badge = "Staff Pick"      }
+    };
+}
+
+@* ── 1. Hero Section ───────────────────────────────────────────────────────── *@
+@* hero-section in site.css applies the dark indigo gradient + SVG dot texture.
+   p-4 p-md-5 gives responsive padding (tighter on mobile, generous on desktop). *@
+<div class="hero-section p-4 p-md-5 mb-4 text-white">
+    <div class="row align-items-center g-4 py-2">
+
+        @* Left column: headline + call-to-action buttons *@
+        <div class="col-lg-7">
+            <div class="mb-3">
+                @* Technology badge in amber — stands out against the dark hero background *@
+                <span class="badge bg-warning text-dark fw-semibold px-3 py-2 rounded-pill">
+                    <i class="bi bi-stars me-1"></i>ASP.NET Core MVC &middot; .NET 10
+                </span>
+            </div>
+
+            @* Hero headline: large display text with an amber accent word *@
+            <h1 class="display-4 fw-bold mb-3" style="line-height:1.1">
+                Your Digital<br>
+                <span style="color:#fbbf24">Book Catalogue</span>
+            </h1>
+
+            <p class="lead mb-4" style="opacity:.82; max-width:480px">
+                Discover, manage, and explore books across a wide range of categories.
+                A modern catalogue built with ASP.NET Core MVC and .NET 10.
+            </p>
+
+            @* Call-to-action buttons — primary (Browse Books) and secondary (Categories) *@
+            @* asp-controller/asp-action generate the correct href via the MVC routing table *@
+            <div class="d-flex gap-3 flex-wrap">
+                <a asp-controller="Books" asp-action="Index"
+                   class="btn btn-warning btn-lg px-5 fw-semibold shadow-sm">
+                    <i class="bi bi-journal-bookmark me-2"></i>Browse Books
+                </a>
+                <a asp-controller="Categories" asp-action="Index"
+                   class="btn btn-outline-light btn-lg px-5">
+                    <i class="bi bi-tags me-2"></i>Categories
+                </a>
+            </div>
+        </div>
+
+        @* Right column: large decorative icon — hidden on small screens (d-none d-lg-flex).
+           clamp() scales font-size between 6rem and 10rem based on the viewport width.
+           opacity:.08 keeps it subtle so it doesn't compete with the text content. *@
+        <div class="col-lg-5 text-center d-none d-lg-flex align-items-center justify-content-center">
+            <i class="bi bi-book-half"
+               style="font-size:clamp(6rem,14vw,10rem); opacity:.08; color:#fff; line-height:1;"></i>
+        </div>
+    </div>
+</div>
+
+@* ── 2. Best Sellers Section ──────────────────────────────────────────────── *@
+@*
+   MOCK DATA — see the @{ } code block at the top of this file.
+   Each card uses:
+     .bestseller-card     — card with amber top-border accent (site.css §18)
+     .bestseller-cover-wrapper — amber gradient placeholder cover area
+     .bestseller-rank-badge   — circular gold badge with the rank number
+   Clicking "View Book" navigates to /Books/Details/{BookId}.
+*@
+<div class="mb-4">
+
+    @* Section heading row: icon badge, title/subtitle, amber pill badge *@
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="bestseller-section-icon">
+            <i class="bi bi-fire"></i>
+        </div>
+        <div>
+            <h2 class="section-title fs-4 fw-bold mb-0">Best Sellers</h2>
+            <p class="text-muted small mb-0">Our most popular titles this season</p>
+        </div>
+        <span class="badge bg-warning text-dark ms-auto px-3 py-2 rounded-pill fw-semibold">
+            <i class="bi bi-trophy me-1"></i>Top Picks
+        </span>
+    </div>
+
+    @* row-cols-1 = 1 column on mobile; row-cols-md-3 = 3 columns on medium+ screens *@
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var book in bestSellers)
+        {
+            <div class="col">
+                @* bestseller-card: amber top border + card-hover lift animation *@
+                <div class="card bestseller-card card-hover h-100 border-0">
+
+                    @* Cover area: amber gradient background with rank badge overlay *@
+                    <div class="bestseller-cover-wrapper">
+                        <i class="bi bi-book-half bestseller-cover-placeholder"></i>
+                        @* Rank badge (1, 2, 3) pinned to top-left via absolute positioning *@
+                        <div class="bestseller-rank-badge">@book.Rank</div>
+                    </div>
+
+                    <div class="card-body p-3">
+                        @* Genre badge — amber tint on transparent background *@
+                        <span class="badge rounded-pill small mb-2 fw-semibold"
+                              style="background:rgba(245,158,11,.15); color:#92400e;">
+                            @book.Genre
+                        </span>
+                        @* title attribute on the heading shows the full title on hover if it truncates *@
+                        <h6 class="fw-bold mb-1 text-truncate" title="@book.Title">@book.Title</h6>
+                        <p class="text-muted small mb-2">by @book.Author</p>
+                        <div class="fw-bold text-success fs-6">$@book.Price.ToString("F2")</div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+                        @* asp-route-id generates: /Books/Details/{book.BookId} *@
+                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book.BookId"
+                           class="btn btn-warning btn-sm w-100 fw-semibold">
+                            <i class="bi bi-eye me-1"></i>View Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@* Decorative divider between sections — defined in site.css §20 *@
+<hr class="home-section-divider" />
+
+@* ── 3. Featured Books Section ────────────────────────────────────────────── *@
+@*
+   MOCK DATA — see the @{ } code block at the top of this file.
+   Each card uses:
+     .featured-card         — card with indigo left-border accent (site.css §19)
+     .featured-cover-wrapper — brand-gradient-light placeholder cover area
+     .featured-label-badge  — frosted-glass pill pinned to the top-right of the cover
+   The curator badge (Badge property) labels each book as editor's/course/staff pick.
+*@
+<div class="mb-4">
+
+    @* Section heading row: icon badge, title/subtitle, indigo pill badge *@
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="featured-section-icon">
+            <i class="bi bi-stars"></i>
+        </div>
+        <div>
+            <h2 class="section-title fs-4 fw-bold mb-0">Featured Books</h2>
+            <p class="text-muted small mb-0">Hand-picked titles curated by our team</p>
+        </div>
+        <span class="badge ms-auto px-3 py-2 rounded-pill fw-semibold"
+              style="background:var(--brand-gradient); color:#fff;">
+            <i class="bi bi-bookmark-star me-1"></i>Curated
+        </span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var book in featuredBooks)
+        {
+            <div class="col">
+                @* featured-card: indigo left border + card-hover lift animation *@
+                <div class="card featured-card card-hover h-100 border-0">
+
+                    @* Cover area: soft indigo gradient with curator label overlay *@
+                    <div class="featured-cover-wrapper">
+                        <i class="bi bi-book-half featured-cover-placeholder"></i>
+                        @* Curator badge pinned to top-right — glass-morphism style *@
+                        <div class="featured-label-badge">@book.Badge</div>
+                    </div>
+
+                    <div class="card-body p-3">
+                        @* Genre badge — indigo tint *@
+                        <span class="badge rounded-pill small mb-2 fw-semibold"
+                              style="background:rgba(99,102,241,.12); color:#4338ca;">
+                            @book.Genre
+                        </span>
+                        <h6 class="fw-bold mb-1 text-truncate" title="@book.Title">@book.Title</h6>
+                        <p class="text-muted small mb-2">by @book.Author</p>
+                        <div class="fw-bold text-success fs-6">$@book.Price.ToString("F2")</div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book.BookId"
+                           class="btn btn-primary btn-sm w-100 fw-semibold">
+                            <i class="bi bi-eye me-1"></i>View Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<hr class="home-section-divider" />
+
+@* ── 4. Explore the Bookstore — Feature Navigation Cards ─────────────────── *@
+@* Three equal-height cards linking to the main catalogue areas.
+   row-cols-1 = 1 column on mobile; row-cols-md-3 = 3 columns on medium+ screens.
+   card-hover (site.css §6) adds the translateY(-5px) lift animation on hover. *@
+<h2 class="section-title fs-4 fw-bold mb-4">
+    <i class="bi bi-compass me-2 text-primary opacity-75"></i>Explore the Bookstore
+</h2>
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+
+    @* Card 1: Book Catalogue *@
+    <div class="col">
+        <div class="card card-hover h-100 border-0">
+            <div class="card-body p-4">
+                @* stat-icon: rounded icon badge — coloured by Bootstrap bg-opacity utilities *@
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="bi bi-journal-bookmark"></i>
+                </div>
+                <h5 class="card-title fw-bold">Book Catalogue</h5>
+                <p class="card-text text-muted">
+                    Browse the complete collection of books with cover art, authors,
+                    pricing, and content ratings.
+                </p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                <a asp-controller="Books" asp-action="Index" class="btn btn-primary btn-sm px-3">
+                    <i class="bi bi-arrow-right me-1"></i>View Books
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* Card 2: Categories *@
+    <div class="col">
+        <div class="card card-hover h-100 border-0">
+            <div class="card-body p-4">
+                <div class="stat-icon bg-success bg-opacity-10 text-success mb-3">
+                    <i class="bi bi-tags"></i>
+                </div>
+                <h5 class="card-title fw-bold">Categories</h5>
+                <p class="card-text text-muted">
+                    Organise and browse books by genre or category to quickly find
+                    exactly what you're looking for.
+                </p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-success btn-sm px-3">
+                    <i class="bi bi-arrow-right me-1"></i>View Categories
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* Card 3: Account Management *@
+    <div class="col">
+        <div class="card card-hover h-100 border-0">
+            <div class="card-body p-4">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning mb-3">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <h5 class="card-title fw-bold">Account Management</h5>
+                <p class="card-text text-muted">
+                    Sign in or register to manage the bookstore catalogue — add, edit,
+                    and remove books and categories.
+                </p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                @* asp-area="Identity" routes to the Identity area's Login Razor Page *@
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-warning btn-sm px-3">
+                    <i class="bi bi-arrow-right me-1"></i>Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@* ── 5. Tech Info Strip ───────────────────────────────────────────────────── *@
+@* A subtle gradient card highlighting the four key technologies used in the project.
+   col-3 = 4 equal columns (3/12 each); text-center centres the icons and labels. *@
+<div class="card border-0" style="background:linear-gradient(to right,#eef2ff,#f5f3ff)">
+    <div class="card-body p-4">
+        <div class="row g-4 text-center">
+
+            <div class="col-6 col-md-3">
+                <i class="bi bi-shield-check text-primary fs-3 d-block mb-1"></i>
+                <div class="fw-semibold small">Secure Auth</div>
+                <div class="text-muted" style="font-size:.75rem">ASP.NET Identity</div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <i class="bi bi-database text-success fs-3 d-block mb-1"></i>
+                <div class="fw-semibold small">EF Core</div>
+                <div class="text-muted" style="font-size:.75rem">SQL Server + LocalDB</div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <i class="bi bi-bootstrap text-indigo fs-3 d-block mb-1"></i>
+                <div class="fw-semibold small">Bootstrap 5</div>
+                <div class="text-muted" style="font-size:.75rem">Responsive UI</div>
+            </div>
+
+            @* Fourth item: file upload — added alongside the best-sellers/featured UI pass *@
+            <div class="col-6 col-md-3">
+                <i class="bi bi-cloud-upload text-warning fs-3 d-block mb-1"></i>
+                <div class="fw-semibold small">File Upload</div>
+                <div class="text-muted" style="font-size:.75rem">Cover Images (GUID)</div>
+            </div>
+
+        </div>
+    </div>
+</div>

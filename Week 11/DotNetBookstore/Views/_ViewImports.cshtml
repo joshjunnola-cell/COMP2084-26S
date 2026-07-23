@@ -1,0 +1,42 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/_ViewImports.cshtml
+ * PURPOSE: Declares global @using namespaces and enables Tag Helpers for
+ *          EVERY Razor view in the application. You do not need to repeat
+ *          these lines in individual views.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. @using             — makes a C# namespace available in all views, just
+ *                          like "using" at the top of a .cs file.
+ *                          "DotNetBookstore" → access to any class in the root namespace.
+ *                          "DotNetBookstore.Models" → access to Book, Category, etc.
+ *                          without needing the full namespace path in each view.
+ *  2. @addTagHelper      — enables a set of Tag Helpers in all views.
+ *                          Tag Helpers are C# classes that look like HTML attributes
+ *                          (e.g., asp-for, asp-controller, asp-action) but run
+ *                          server-side and generate proper HTML output.
+ *          "*, Microsoft.AspNetCore.Mvc.TagHelpers" — the asterisk (*) imports
+ *          ALL built-in ASP.NET Core Tag Helpers in one line. Common ones:
+ *            asp-controller / asp-action / asp-area → generate href/action URLs
+ *            asp-for                                → binds an input to a model property
+ *            asp-validation-for                     → shows validation error messages
+ *            asp-validation-summary                 → shows all model-level errors
+ *            asp-items                              → populates a <select> with options
+ *            asp-append-version                     → cache-busts static file URLs
+ * ============================================================================
+ *@
+
+@* Make the root application namespace available in all views *@
+@using DotNetBookstore
+
+@* Make the Models namespace available so views can reference Book, Category, etc.
+   directly without writing DotNetBookstore.Models.Book every time *@
+@using DotNetBookstore.Models
+
+@* Enable all built-in ASP.NET Core Tag Helpers (asp-*, etc.) in all views *@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

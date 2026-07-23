@@ -1,0 +1,33 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/_ViewStart.cshtml
+ * PURPOSE: Runs BEFORE every Razor view is rendered (hence "_ViewStart").
+ *          Its only job here is to set the default layout template that all
+ *          views should be wrapped in.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. _ViewStart.cshtml  — an implicit hook that runs at the start of every
+ *                          view in this folder and all sub-folders. It is
+ *                          discovered and executed automatically by the Razor
+ *                          view engine — you never call it directly.
+ *  2. Layout property    — setting Layout = "_Layout" tells every view to wrap
+ *                          itself inside Views/Shared/_Layout.cshtml by default.
+ *                          An individual view can override this with:
+ *                            @{ Layout = "AnotherLayout"; }  // use a different layout
+ *                            @{ Layout = null; }             // no layout (raw HTML only)
+ *  3. Why use a layout?  — defining the layout here once means every new view
+ *                          you add will automatically have the navbar, footer,
+ *                          and script tags — without repeating them.
+ * ============================================================================
+ *@
+
+@{
+    @* Apply the shared layout to every view in the application.
+       The path is relative — Razor looks in Views/Shared/_Layout.cshtml. *@
+    Layout = "_Layout";
+}

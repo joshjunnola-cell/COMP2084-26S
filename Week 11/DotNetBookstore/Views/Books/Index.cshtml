@@ -1,0 +1,164 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Books/Index.cshtml
+ * PURPOSE: Displays the full book catalogue as a responsive card grid.
+ *          Each card shows the cover image (or a placeholder), category badge,
+ *          mature-content flag, title, author, price, and action buttons.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. @model IEnumerable<Book> — declares that the controller passes a
+ *                                collection of Book objects to this view.
+ *                                BooksController.Index() calls ToListAsync()
+ *                                and passes the list as the model.
+ *  2. .ToList() in view        — we call .ToList() once at the top to avoid
+ *                                iterating the IEnumerable twice (once for
+ *                                .Count and once for @foreach). This materialises
+ *                                it into a List<Book> in memory.
+ *  3. @foreach                 — Razor's equivalent of C#'s foreach loop.
+ *                                Iterates over every book and renders one card.
+ *  4. @if / else               — renders the grid if books exist, or an
+ *                                "empty state" placeholder if the catalogue is empty.
+ *  5. Conditional rendering    — @if (!string.IsNullOrWhiteSpace(item.Image))
+ *                                shows the <img> only when a saved filename exists.
+ *                                The src is built as ~/img/books/{filename}, where
+ *                                the tilde resolves to wwwroot/ at render time.
+ *                                onerror="this.style.display='none'" hides broken images.
+ *  6. asp-route-id             — adds the book's ID to the action URL:
+ *                                asp-action="Edit" asp-route-id="3" → /Books/Edit/3
+ *  7. Responsive Bootstrap grid — row-cols-1 (1 col mobile) → row-cols-sm-2 →
+ *                                 row-cols-md-3 → row-cols-xl-4 creates
+ *                                 a fluid grid that adapts to screen width.
+ *  8. Empty state UX           — instead of a blank page, show a friendly message
+ *                                with a call-to-action when no data exists.
+ * ============================================================================
+ *@
+
+@* Strongly-typed model: this view works with a list of Book objects *@
+@model IEnumerable<DotNetBookstore.Models.Book>
+
+@{
+    ViewData["Title"] = "Books";
+    @* Materialise the IEnumerable into a List so we can call .Count and .Any
+       without enumerating the collection twice (a performance best practice). *@
+    var bookList = Model.ToList();
+}
+
+@* ── Page header: title + count + "Add New Book" button ──────────────────── *@
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="mb-0 fw-bold section-title">
+            <i class="bi bi-journal-bookmark me-2 text-indigo"></i>Books
+        </h2>
+        @* Pluralisation: "1 book" vs "5 books" using the ternary operator *@
+        <p class="text-muted mb-0 mt-1 small">
+            @bookList.Count book@(bookList.Count == 1 ? "" : "s") in the catalogue
+        </p>
+    </div>
+    @* asp-action="Create" generates href="/Books/Create" *@
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add New Book
+    </a>
+</div>
+
+@* ── Book grid (shown only when there is at least one book) ──────────────── *@
+@if (bookList.Any())
+{
+    @* Responsive grid: 1 column on xs, 2 on sm, 3 on md, 4 on xl *@
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+        @foreach (var item in bookList)
+        {
+            <div class="col">
+                @* book-card in site.css adds a hover lift animation *@
+                <div class="card book-card h-100 border-0 shadow-sm">
+
+                    @* ── Cover image wrapper ───────────────────────────────── *@
+                    @* The wrapper div has a gradient background (via site.css).
+                       The placeholder icon shows by default.
+                       If the book has an image URL, the <img> loads on top of it.
+                       If the image fails to load, onerror hides the broken <img>
+                       and the placeholder shows through again. *@
+                    <div class="book-cover-wrapper">
+                        <i class="bi bi-book-half book-cover-placeholder" aria-hidden="true"></i>
+                        @if (!string.IsNullOrWhiteSpace(item.Image))
+                        {
+                            @* ~/img/books/ resolves to wwwroot/img/books/ at render time.
+                               item.Image stores only the GUID-prefixed filename saved on upload. *@
+                            <img src="~/img/books/@item.Image" alt="@item.Title cover"
+                                 class="cover-img"
+                                 onerror="this.style.display='none'" />
+                        }
+                    </div>
+
+                    @* ── Card body ─────────────────────────────────────────── *@
+                    <div class="card-body d-flex flex-column px-3 pt-3 pb-2">
+
+                        @* Badges row: Category name + Mature Content flag *@
+                        <div class="mb-2 d-flex flex-wrap gap-1">
+                            @* Show the category badge only if the category is loaded and named *@
+                            @if (!string.IsNullOrWhiteSpace(item.Category?.Name))
+                            {
+                                <span class="badge bg-secondary rounded-pill">@item.Category.Name</span>
+                            }
+                            @* Show the "Mature" badge only for adult-content books *@
+                            @if (item.MatureContent)
+                            {
+                                <span class="badge bg-danger rounded-pill">
+                                    <i class="bi bi-18-up me-1"></i>Mature
+                                </span>
+                            }
+                        </div>
+
+                        @* Title and author — flex-grow-1 makes title fill remaining height *@
+                        <h6 class="card-title fw-bold mb-1 lh-sm flex-grow-1">@item.Title</h6>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person me-1"></i>@item.Author
+                        </p>
+
+                        @* Price formatted to 2 decimal places with $ prefix *@
+                        <p class="fw-bold text-success mb-0 fs-5">$@item.Price.ToString("0.00")</p>
+                    </div>
+
+                    @* ── Card footer: action buttons ───────────────────────── *@
+                    @* asp-route-id="@item.BookId" appends the ID to the URL:
+                       View   → /Books/Details/5
+                       Edit   → /Books/Edit/5
+                       Delete → /Books/Delete/5 *@
+                    <div class="card-footer bg-transparent border-top-0 d-flex gap-1 justify-content-end pb-3 px-3">
+                        <a asp-action="Details" asp-route-id="@item.BookId"
+                           class="btn btn-outline-info btn-sm" title="View details">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@item.BookId"
+                           class="btn btn-outline-primary btn-sm" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.BookId"
+                           class="btn btn-outline-danger btn-sm" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    @* ── Empty state: shown when no books exist in the database ──────────── *@
+    @* Good UX practice: never leave users on a blank page. Explain the situation
+       and give them a clear action to take (Add First Book). *@
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-journal-x"></i></span>
+        <h5 class="text-muted fw-semibold">No books yet</h5>
+        <p class="text-muted small mb-3">Get started by adding the first book to the catalogue.</p>
+        <a asp-action="Create" class="btn btn-primary px-4">
+            <i class="bi bi-plus-circle me-1"></i>Add First Book
+        </a>
+    </div>
+}
