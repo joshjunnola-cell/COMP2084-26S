@@ -1,0 +1,13 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Ignore development appsettings that may contain secrets
+**/appsettings.Development.json
+Week 10/DotNetBookstore/appsettings.Development.json
+
+# Node/npm
+node_modules/

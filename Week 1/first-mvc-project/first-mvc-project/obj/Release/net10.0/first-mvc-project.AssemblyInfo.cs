@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("first-mvc-project")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7cafef5c9ec35ca36f001030d31e9e3c6f09d4da")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e976c8eb48fcfa96ba0edd0bc57ad25bfaf9ec94")]
 [assembly: System.Reflection.AssemblyProductAttribute("first-mvc-project")]
 [assembly: System.Reflection.AssemblyTitleAttribute("first-mvc-project")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
