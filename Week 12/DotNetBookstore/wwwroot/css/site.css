@@ -1,0 +1,556 @@
+/* =============================================================================
+   DotNet Bookstore — In-Class ASP.NET Core MVC Project
+   Course: COMP2084 | Georgian College | Summer 2026
+   Instructor: Dario Hesami
+   =============================================================================
+
+   FILE:    wwwroot/css/site.css
+   PURPOSE: Custom design system for the DotNet Bookstore application.
+            Built on top of Bootstrap 5 — this file adds brand-specific styles,
+            component overrides, and utility classes that Bootstrap doesn't provide.
+
+   ARCHITECTURE (order matters — later rules override earlier ones):
+     1.  Design tokens   — CSS custom properties (variables) for colours, shadows,
+                           spacing, and animation timing used throughout the file.
+     2.  Base            — global html/body defaults.
+     3.  Focus ring      — accessible keyboard-focus outline style.
+     4.  Navbar          — brand gradient navigation bar.
+     5.  Footer          — matching gradient footer.
+     6.  Cards           — base card styles + hover lift animation.
+     7.  Book cards      — specialised card with cover image wrapper.
+     8.  Buttons         — custom hover effects for each Bootstrap variant.
+     9.  Form controls   — consistent border radius + focus colour.
+     10. Tables          — header and body cell styles.
+     11. Badges          — smaller text and tighter padding.
+     12. Alerts          — remove default border, round corners.
+     13. Page header     — purple-tinted top-of-page banner.
+     14. Hero section    — full-bleed landing page banner with pattern overlay.
+     15. Stat / feature  — icon badge + feature card styles.
+     16. Empty state     — centered placeholder shown when no data exists.
+     17. Utilities       — small helper classes and special component styles.
+
+   KEY CONCEPTS FOR STUDENTS:
+     1. CSS custom properties (:root) — define reusable values once and reference
+                           them with var(--name). Change a value in ONE place and
+                           it updates everywhere — like constants in C#.
+     2. Bootstrap override — by loading this file AFTER Bootstrap in _Layout.cshtml,
+                           our rules win specificity ties and visually override
+                           Bootstrap's defaults without modifying Bootstrap itself.
+     3. CSS transitions    — smooth animations on hover using the transition property.
+                           The timing values come from design tokens.
+     4. Responsive design  — @media queries adjust font size or layout at breakpoints.
+     5. CSS gradients      — linear-gradient() used for the navbar, footer, hero, and
+                           decorative elements.
+     6. object-fit: cover  — makes <img> fill its container while maintaining aspect
+                           ratio (crops the overflow). Used for book cover images.
+   ============================================================================= */
+
+/* ── 1. Design Tokens ──────────────────────────────────────────────────────────
+   CSS custom properties (variables) defined on :root are accessible everywhere
+   in the stylesheet via var(--token-name). This is the single source of truth
+   for all colour, shadow, radius, and timing values.
+   Think of this as your "theme file" — change a value here and it cascades through
+   the entire application automatically. ────────────────────────────────────────*/
+:root {
+  /* Brand gradient: dark indigo → medium indigo → dark indigo (used on navbar/footer) */
+  --brand-gradient:        linear-gradient(135deg, #1e1b4b 0%, #3730a3 60%, #1e1b4b 100%);
+
+  /* Hero gradient: slightly lighter purple for the landing page banner */
+  --hero-gradient:         linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+
+  /* Light gradient used as book card and form background accents */
+  --brand-gradient-light:  linear-gradient(135deg, #eef2ff 0%, #ede9fe 100%);
+
+  /* Box shadows: subtle (resting) and stronger (hover) */
+  --card-shadow:       0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(79,70,229,.08);
+  --card-shadow-hover: 0 8px 32px rgba(79,70,229,.18), 0 2px 8px rgba(0,0,0,.08);
+  --navbar-shadow:     0 2px 20px rgba(30,27,75,.45);
+
+  /* Border radius for cards and buttons */
+  --radius-card: .75rem;   /* 12px — rounded card corners */
+  --radius-btn:  .5rem;    /* 8px  — slightly rounded buttons */
+
+  /* Animation timing — standard, fast (snappy feedback), slow (smooth transitions) */
+  --transition:      220ms ease;
+  --transition-fast: 150ms ease;
+  --transition-slow: 380ms ease;
+}
+
+/* ── 2. Base ───────────────────────────────────────────────────────────────────
+   Global defaults for html and body. These establish the baseline for the
+   entire page and are inherited by child elements. ────────────────────────────*/
+html {
+  font-size: 14px;         /* Base font size on mobile (smaller for tighter screens) */
+  scroll-behavior: smooth; /* Smooth scroll when navigating to anchors (#id links) */
+}
+
+/* Responsive font size: increase to 16px on tablets/desktops (≥768px) */
+@media (min-width: 768px) {
+  html { font-size: 16px; }
+}
+
+body {
+  background: #f4f3ff;     /* Very light indigo tint — distinguishes the page from white cards */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; /* System font stack */
+  color: #1f2937;          /* Near-black body text for strong contrast */
+}
+
+/* ── 3. Focus Ring ─────────────────────────────────────────────────────────────
+   Overrides the default browser focus outline with a brand-coloured glow.
+   IMPORTANT: never remove focus styles entirely — they are essential for
+   keyboard and screen-reader accessibility (WCAG requirement). ─────────────────*/
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 .2rem rgba(79,70,229,.25) !important; /* Indigo glow ring */
+  outline: none;
+}
+
+/* ── 4. Navbar ─────────────────────────────────────────────────────────────────
+   Dark brand gradient navigation bar. The !important overrides Bootstrap's
+   default navbar background so our gradient takes precedence. ─────────────────*/
+.navbar {
+  background: var(--brand-gradient) !important; /* Use the design token */
+  box-shadow: var(--navbar-shadow);
+  min-height: 4rem; /* Ensures a taller, more spacious navbar */
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -.01em;  /* Slightly tighter tracking for the brand name */
+  color: #fff !important;
+  transition: opacity var(--transition-fast); /* Fade on hover */
+}
+.navbar-brand:hover { opacity: .85; } /* Subtle dim on hover feedback */
+
+/* The small icon box next to the brand name — like a mini app icon */
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: rgba(251,191,36,.18);           /* Semi-transparent amber background */
+  border: 1px solid rgba(251,191,36,.28);     /* Matching amber border */
+  border-radius: .4rem;
+  margin-right: .45rem;
+  vertical-align: middle;
+  font-size: 1rem;
+}
+
+/* Nav link styles: rounded pill hover, active state highlighted in brand yellow */
+.nav-link {
+  font-weight: 500;
+  border-radius: .375rem;
+  padding: .38rem .75rem !important; /* Tighter padding than Bootstrap default */
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.nav-link:hover  { background: rgba(255,255,255,.13); }                      /* Subtle white overlay on hover */
+.nav-link.active { background: rgba(255,255,255,.18) !important; color: #fbbf24 !important; } /* Yellow text + brighter overlay */
+
+/* ── 5. Footer ─────────────────────────────────────────────────────────────────
+   Uses the same brand gradient as the navbar for visual consistency.
+   The footer sticks to the bottom via the flex layout set on <body> in _Layout. ─*/
+footer {
+  background: var(--brand-gradient) !important;
+}
+footer a { transition: color var(--transition-fast); }
+footer a:hover { color: #fbbf24 !important; } /* Brand yellow on hover */
+
+/* ── 6. Cards ──────────────────────────────────────────────────────────────────
+   Base card styles applied to ALL Bootstrap .card elements sitewide.
+   card-hover is an additional class for interactive cards (categories, features). */
+.card {
+  border-radius: var(--radius-card) !important; /* Override Bootstrap's default radius */
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(99,102,241,.07) !important; /* Very faint indigo border */
+}
+
+/* Hover lift animation: card rises 5px and shadow deepens */
+.card-hover {
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow-hover) !important;
+}
+
+/* ── 7. Book Cards ─────────────────────────────────────────────────────────────
+   Specialised card layout for the Books catalogue. The cover image fills the
+   top portion of the card; the gradient shows behind/around the cover image. ────*/
+.book-card {
+  overflow: hidden; /* Ensures the cover image doesn't escape the rounded corners */
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow-hover) !important;
+}
+
+/* The cover area: fixed height, gradient background, flex-centred placeholder icon */
+.book-cover-wrapper {
+  height: 210px;
+  background: var(--brand-gradient-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative; /* Required for absolute positioning of .cover-img */
+  flex-shrink: 0;     /* Prevents the cover from shrinking in flex layouts */
+}
+
+/* The actual cover <img> overlays the placeholder using absolute positioning */
+.book-cover-wrapper .cover-img {
+  position: absolute;
+  inset: 0;            /* shorthand for top:0 right:0 bottom:0 left:0 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* Fill container while maintaining image aspect ratio */
+}
+
+/* Placeholder icon (bi-book-half) shown when no image URL is provided */
+.book-cover-placeholder {
+  color: #a5b4fc;      /* Soft indigo colour */
+  font-size: 3.5rem;
+}
+
+/* ── 8. Buttons ────────────────────────────────────────────────────────────────
+   All buttons get rounded corners and a fast transition by default.
+   Each variant (.btn-primary, .btn-success, etc.) gets a custom hover shadow
+   in its own colour, plus a tiny upward nudge (translateY(-1px)). ──────────────*/
+.btn {
+  border-radius: var(--radius-btn) !important;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+/* Primary button hover: darker background + coloured shadow */
+.btn-primary:hover {
+  background: #4338ca;
+  border-color: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79,70,229,.3);
+}
+/* Success / green button hover */
+.btn-success:hover {
+  background: #047857;
+  border-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5,150,105,.3);
+}
+/* Danger / red button hover */
+.btn-danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220,38,38,.3);
+}
+/* Warning / yellow button hover */
+.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245,158,11,.3);
+}
+/* Outline buttons: just the upward nudge, no shadow change */
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-danger:hover,
+.btn-outline-info:hover,
+.btn-outline-light:hover {
+  transform: translateY(-1px);
+}
+
+/* ── 9. Form Controls ──────────────────────────────────────────────────────────
+   Consistent rounded borders on text inputs and select dropdowns.
+   Focus colour uses brand indigo instead of Bootstrap's default blue. ──────────*/
+.form-control,
+.form-select {
+  border-radius: var(--radius-btn) !important;
+  border-color: #d1d5db;   /* Light grey border (Bootstrap default is slightly different) */
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: #818cf8 !important; /* Indigo border glow on focus */
+}
+
+/* The icon prefix inside Bootstrap input-groups (e.g., the $ icon before price) */
+.input-group-text {
+  border-radius: var(--radius-btn) 0 0 var(--radius-btn) !important; /* Rounded left corners only */
+  background: #f0f0fe;   /* Very light indigo tint */
+  border-color: #d1d5db;
+  color: #6366f1;        /* Indigo icon colour */
+}
+
+/* ── 10. Tables ────────────────────────────────────────────────────────────────
+   Uniform padding and uppercase header style for data tables (used if tables
+   are added in future pages). ───────────────────────────────────────────────────*/
+.table thead th {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;  /* Wider tracking for uppercase labels */
+  padding: .85rem 1rem;
+}
+.table tbody td {
+  padding: .75rem 1rem;
+  vertical-align: middle; /* Vertically centres content in each cell */
+}
+
+/* ── 11. Badges ────────────────────────────────────────────────────────────────
+   Slightly smaller text and tighter padding than Bootstrap's default badges. ────*/
+.badge {
+  font-weight: 600;
+  font-size: .7rem;
+  letter-spacing: .03em;
+  padding: .3em .6em;
+}
+
+/* ── 12. Alerts ────────────────────────────────────────────────────────────────
+   Remove Bootstrap's default 1px border and use the card's rounded corners. ─────*/
+.alert {
+  border-radius: var(--radius-card) !important;
+  border: none;
+}
+
+/* ── 13. Page Header ───────────────────────────────────────────────────────────
+   The purple-tinted banner at the top of list pages (Books, Categories).
+   The 4px left border creates a coloured accent stripe on the left edge. ─────────*/
+.page-header {
+  background: linear-gradient(to right, #eef2ff, #f5f3ff); /* Soft indigo gradient */
+  border-radius: var(--radius-card);
+  border-left: 4px solid #6366f1; /* Solid indigo left accent stripe */
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+/* ── 14. Hero Section ──────────────────────────────────────────────────────────
+   The large banner on the Home page. Uses a dark purple gradient background
+   with a subtle SVG dot pattern overlay for texture. ────────────────────────────*/
+.hero-section {
+  background: var(--hero-gradient);
+  border-radius: 1.25rem;
+  overflow: hidden;         /* Clip the ::before pattern within rounded corners */
+  position: relative;       /* Required for the ::before pseudo-element */
+}
+
+/* SVG dot pattern overlaid on the hero gradient for subtle texture.
+   The pattern is data-URI encoded so no external file is needed. */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none; /* Pattern doesn't block clicks on child elements */
+}
+
+/* ── 15. Stat / Feature Cards ──────────────────────────────────────────────────
+   "stat-card" is a standalone card variant (e.g., for a dashboard).
+   "stat-icon" is the rounded icon badge used in feature cards and category cards. ─*/
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(99,102,241,.06);
+  text-align: center;
+  transition: transform var(--transition);
+}
+.stat-card:hover { transform: translateY(-3px); }
+
+/* Rounded square icon container — coloured backgrounds are added via Bootstrap
+   utility classes: bg-primary bg-opacity-10 text-primary (for each section) */
+.stat-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: .75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: .75rem;
+}
+
+/* ── 16. Empty State ───────────────────────────────────────────────────────────
+   Centred placeholder shown when a list has no items (e.g., no books, no categories).
+   Good UX: always explain why the list is empty and give a clear call-to-action. ──*/
+.empty-state {
+  padding: 4rem 1rem;
+  text-align: center;
+}
+/* Large faded icon above the empty-state message */
+.empty-state .empty-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: .3;         /* Faded so it doesn't compete with the message text */
+  color: #6366f1;
+}
+
+/* ── 17. Utility Helpers ───────────────────────────────────────────────────────
+   Small reusable helper classes not provided by Bootstrap out of the box.
+   These follow the same utility-class naming convention Bootstrap uses. ──────────*/
+
+/* Dark indigo heading text — applied to page titles and card headings */
+.section-title   { letter-spacing: -.02em; color: #1e1b4b; }
+
+/* Indigo text colour (Bootstrap doesn't have a .text-indigo utility by default) */
+.text-indigo     { color: #6366f1 !important; }
+
+/* Very light indigo background (used for form section backgrounds, subtle accents) */
+.bg-indigo-subtle { background: #eef2ff !important; }
+
+/* Decorative gradient horizontal rule — replaces the plain <hr> in forms.
+   Fades in/out at the edges for a soft transition effect. */
+.divider-gradient {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #a5b4fc 40%, #c4b5fd 60%, transparent);
+  border: none;
+  opacity: .6;
+  margin: 1.25rem 0;
+}
+
+/* Image preview container (Books Create/Edit forms) — fades in smoothly
+   via the transition-slow token when the preview shows. */
+#imagePreviewWrapper {
+  transition: opacity var(--transition-slow);
+}
+
+/* ── 18. Best Sellers Section ──────────────────────────────────────────────────
+   Amber/gold colour scheme used for the Best Sellers cards on the Home page.
+   Key components: section-heading icon badge, card with amber top-border accent,
+   cover area with gradient background, and a circular rank badge overlay. ──────*/
+
+/* Rounded icon badge that appears in the Best Sellers section heading */
+.bestseller-section-icon {
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, #fffbeb, #fde68a);
+  border-radius: .75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #d97706;            /* Amber icon colour */
+  flex-shrink: 0;
+}
+
+/* Bestseller card body — amber top border distinguishes it from regular book cards */
+.bestseller-card {
+  border-top: 3px solid #f59e0b !important;
+}
+
+/* Cover placeholder area inside a bestseller card */
+.bestseller-cover-wrapper {
+  height: 180px;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;   /* Required for .bestseller-rank-badge absolute positioning */
+  overflow: hidden;
+}
+
+/* Placeholder book icon inside the bestseller cover — faded amber colour */
+.bestseller-cover-placeholder {
+  font-size: 3.5rem;
+  color: #f59e0b;
+  opacity: .35;
+}
+
+/* Circular rank badge (#1, #2, #3) pinned to the top-left of the cover.
+   Uses position:absolute within the relative .bestseller-cover-wrapper parent. */
+.bestseller-rank-badge {
+  position: absolute;
+  top: .65rem;
+  left: .65rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: 50%;           /* Perfect circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(245,158,11,.5);  /* Amber glow */
+  z-index: 1;
+}
+
+/* ── 19. Featured Books Section ─────────────────────────────────────────────────
+   Indigo/purple colour scheme for the Featured Books cards on the Home page.
+   Uses a left-border stripe (instead of top like bestsellers) plus a label badge
+   pinned to the top-right corner of the cover area. ──────────────────────────── */
+
+/* Rounded icon badge that appears in the Featured Books section heading */
+.featured-section-icon {
+  width: 3rem;
+  height: 3rem;
+  background: var(--brand-gradient-light);
+  border-radius: .75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #6366f1;              /* Indigo icon colour */
+  flex-shrink: 0;
+}
+
+/* Featured card — indigo left accent border distinguishes it from bestseller cards */
+.featured-card {
+  border-left: 4px solid #6366f1 !important;
+}
+
+/* Cover placeholder area inside a featured card */
+.featured-cover-wrapper {
+  height: 180px;
+  background: var(--brand-gradient-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;   /* Required for .featured-label-badge absolute positioning */
+  overflow: hidden;
+}
+
+/* Placeholder book icon inside the featured cover — soft indigo colour */
+.featured-cover-placeholder {
+  font-size: 3.5rem;
+  color: #818cf8;
+  opacity: .35;
+}
+
+/* Curator badge ("Editor's Choice", etc.) pinned to the top-right of the cover.
+   backdrop-filter adds a glass-morphism blur effect for a modern look. */
+.featured-label-badge {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba(99,102,241,.82);
+  color: #fff;
+  padding: .22rem .6rem;
+  border-radius: .375rem;
+  backdrop-filter: blur(4px);   /* Frosted-glass effect — needs a supported browser */
+  z-index: 1;
+}
+
+/* ── 20. Home Page Section Divider ─────────────────────────────────────────────
+   A decorative horizontal rule between home page sections. Fades in and out at
+   both edges so it blends softly into the page background. ─────────────────────*/
+.home-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(99,102,241,.18) 30%,
+    rgba(99,102,241,.18) 70%,
+    transparent
+  );
+  border: none;
+  margin: 2.5rem 0;
+}

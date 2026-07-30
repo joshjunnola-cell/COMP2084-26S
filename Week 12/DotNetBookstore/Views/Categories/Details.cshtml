@@ -1,0 +1,91 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Categories/Details.cshtml
+ * PURPOSE: Read-only view of a single category's information.
+ *          Because Category only has a Name property (apart from the PK),
+ *          this is a minimal details page — primarily useful for confirming
+ *          the record exists and navigating to Edit or Delete.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Read-only details view  — no form, no POST. This is the "R" part of CRUD.
+ *  2. @Html.DisplayFor        — renders the model property value as text using
+ *                               any formatting attributes defined on the model.
+ *  3. Definition list <dl>    — semantic HTML for labelled data. <dt> = label,
+ *                               <dd> = value. Used here for the "Name" field.
+ *  4. asp-route-id            — passes the CategoryId to the Edit/Delete URLs so
+ *                               they know which record to operate on.
+ *  5. Card header gradient    — the coloured banner at the top uses an inline
+ *                               style gradient. In production you would move this
+ *                               to a CSS class for maintainability.
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Category
+
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        @* ── Page title + back button ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="mb-0 fw-bold section-title">
+                <i class="bi bi-eye me-2 text-info"></i>Category Details
+            </h2>
+        </div>
+
+        <div class="card shadow border-0">
+
+            @* Coloured header band — visually identifies the category at a glance *@
+            <div class="card-header py-3"
+                 style="background:linear-gradient(to right,#eef2ff,#ede9fe); border-radius:var(--radius-card) var(--radius-card) 0 0 !important;">
+                <div class="d-flex align-items-center gap-3">
+                    @* stat-icon: rounded icon badge from site.css *@
+                    <div class="stat-icon bg-success bg-opacity-10 text-success flex-shrink-0">
+                        <i class="bi bi-tag"></i>
+                    </div>
+                    <div>
+                        @* Display the category name prominently in the header *@
+                        <h5 class="mb-0 fw-bold section-title">@Model?.Name</h5>
+                        <span class="badge bg-success-subtle text-success small mt-1">Category</span>
+                    </div>
+                </div>
+            </div>
+
+            @* ── Category details (definition list) ──────────────────────── *@
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted small fw-semibold text-uppercase">Name</dt>
+                    @* @Html.DisplayFor renders the value using any [Display] formatting *@
+                    <dd class="col-sm-8 fw-semibold">@Html.DisplayFor(m => m.Name)</dd>
+                </dl>
+            </div>
+
+            @* ── Footer: Edit / Delete / Back to list ─────────────────────── *@
+            <div class="card-footer bg-transparent d-flex gap-2 px-4 pb-4 pt-0">
+                @* asp-route-id appends the CategoryId to the URL: /Categories/Edit/5 *@
+                <a asp-action="Edit" asp-route-id="@Model?.CategoryId" class="btn btn-primary btn-sm">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model?.CategoryId" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </a>
+                @* ms-auto pushes this button to the far right of the flex container *@
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm ms-auto">
+                    <i class="bi bi-list me-1"></i>All Categories
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>

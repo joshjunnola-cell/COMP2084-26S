@@ -1,0 +1,104 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Categories/Create.cshtml
+ * PURPOSE: Form for creating a new book category. The user enters a name
+ *          and submits; the data is posted to CategoriesController.Create (POST)
+ *          for validation and database insertion.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Simplest form example   — this is the simplest possible MVC form:
+ *                               one field, one button, no dropdown, no FK.
+ *                               Good starting point for understanding form
+ *                               binding before tackling the Books forms.
+ *  2. asp-action="Create"     — Tag Helper on the <form> element. Generates:
+ *                               action="/Categories/Create" method="post"
+ *                               + a hidden CSRF token field.
+ *  3. asp-for="Name"          — on the <label>: renders the [DisplayName] value
+ *                               ("Category Name") as the label text.
+ *                               On the <input>: sets name="Name", id="Name",
+ *                               and the data-val-* attributes for validation.
+ *  4. asp-validation-for      — renders a <span> that shows the error message
+ *                               when the field fails validation.
+ *  5. asp-validation-summary  — shows any model-level errors (not field-level)
+ *                               in a red dismissible alert at the top.
+ *  6. autofocus               — HTML attribute that moves focus to the input
+ *                               automatically when the page loads, so the user
+ *                               can start typing without clicking first.
+ *  7. @section Scripts        — loads the jQuery Validation scripts for
+ *                               client-side validation (instant feedback).
+ * ============================================================================
+ *@
+
+@model DotNetBookstore.Models.Category
+
+@{
+    ViewData["Title"] = "Add Category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        @* ── Page title + back button ─────────────────────────────────────── *@
+        <div class="d-flex align-items-center mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-3" title="Back to list">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="mb-0 fw-bold section-title">
+                    <i class="bi bi-plus-circle me-2 text-success"></i>Add Category
+                </h2>
+                <p class="text-muted mb-0 mt-1 small">Enter a name for the new book category.</p>
+            </div>
+        </div>
+
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+
+                @* The <form> posts to CategoriesController.Create (POST).
+                   The asp-action Tag Helper also embeds the anti-forgery token. *@
+                <form asp-action="Create">
+                    @* Shows model-level validation errors in a red alert box *@
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    @* ── Category Name field ───────────────────────────────── *@
+                    <div class="mb-4">
+                        @* asp-for="Name" on the label uses the [DisplayName("Category Name")]
+                           attribute from the model to render the correct label text *@
+                        <label asp-for="Name" class="form-label fw-semibold small text-uppercase text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            @* autofocus places cursor here immediately so user can start typing *@
+                            <input asp-for="Name" class="form-control" placeholder="e.g. Science Fiction" autofocus />
+                        </div>
+                        @* Displays the [Required] error message if left blank *@
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <hr class="divider-gradient" />
+
+                    @* ── Action buttons ────────────────────────────────────── *@
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle me-1"></i>Create Category
+                        </button>
+                        @* Cancel navigates back without submitting *@
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@* Load validation scripts for client-side validation (instant feedback in the browser) *@
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

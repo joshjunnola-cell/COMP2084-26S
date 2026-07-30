@@ -1,0 +1,117 @@
+﻿@model DotNetBookstore.Models.Order
+@{
+    ViewData["Title"] = "Checkout";
+    var cartItems = ViewData["CartItems"] as List<DotNetBookstore.Models.CartItem> ?? new List<DotNetBookstore.Models.CartItem>();
+}
+
+<div class="container py-5">
+    <div class="bg-primary bg-gradient text-white rounded-4 shadow-sm p-4 mb-4 text-center">
+        <h1 class="display-6 m-0">Checkout</h1>
+        <p class="lead opacity-75 mb-0">Enter shipping details and continue to secure payment</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <form asp-action="Checkout" method="post" class="card p-4 rounded-4 shadow-sm">
+                @Html.AntiForgeryToken()
+                @* Hidden fields required for model binding (CustomerId is [Required]) *@
+                <input asp-for="CustomerId" type="hidden" />
+                <input asp-for="OrderTotal" type="hidden" />
+
+                @* Show validation summary so users see model-level errors *@
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                <h3 class="h6 mb-3">Shipping information</h3>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FirstName" class="form-label">First name</label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="LastName" class="form-label">Last name</label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label">Address</label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="City" class="form-label">City</label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Province" class="form-label">Province</label>
+                        <input asp-for="Province" class="form-control" />
+                        <span asp-validation-for="Province" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="PostalCode" class="form-label">Postal code</label>
+                        <input asp-for="PostalCode" class="form-control" />
+                        <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    <a asp-controller="Shop" asp-action="Cart" class="btn btn-outline-secondary">Back to cart</a>
+                    <button type="submit" class="btn btn-success btn-lg">Continue to Payment</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="card p-3 rounded-4 shadow-sm">
+                <h3 class="h6 mb-3">Order summary</h3>
+                <ul class="list-group list-group-flush mb-3">
+                    @foreach (var it in cartItems)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">@it.Book?.Title</div>
+                                <div class="small text-muted">@it.Quantity × @string.Format("{0:C}", it.Price)</div>
+                            </div>
+                            <div class="fw-bold">@string.Format("{0:C}", it.Price * it.Quantity)</div>
+                        </li>
+                    }
+                </ul>
+                @{
+                    // Compute subtotal locally from cart items to ensure the view
+                    // reflects the same values the user sees in the list above.
+                    var subtotal = cartItems.Sum(i => i.Price * i.Quantity);
+                    var tax = Math.Round(subtotal * 0.13m, 2);
+                    var total = subtotal + tax;
+                }
+
+                <div class="d-flex justify-content-between fw-semibold">
+                    <div>Subtotal</div>
+                    <div>@string.Format("{0:C}", subtotal)</div>
+                </div>
+                <div class="d-flex justify-content-between text-muted small">
+                    <div>Estimated tax</div>
+                    <div>@string.Format("{0:C}", tax)</div>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between h5 fw-bold">
+                    <div>Total</div>
+                    <div>@string.Format("{0:C}", total)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

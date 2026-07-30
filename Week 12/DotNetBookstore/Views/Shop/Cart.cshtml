@@ -1,0 +1,301 @@
+﻿@*
+    ============================================================================
+    FILE:    Views/Shop/Cart.cshtml
+    PURPOSE: Render the user's shopping cart. This view demonstrates common
+             e-commerce UI patterns for students: listing cart items, updating
+             quantities, removing items, and showing an order summary. It uses
+             small POST forms for updates/removals (anti-forgery protected) so
+             the classroom example follows MVC security best practices.
+
+    TEACHING NOTES:
+    - Each quantity update and remove operation is a POST (not GET). This is
+      intentional: state changes should use POST + anti-forgery tokens.
+    - TempData is used by the controller to pass one-time toast messages after
+      redirects so students can learn the Post-Redirect-Get pattern.
+    - The page uses progressive enhancement: JavaScript improves UX (auto-
+      submit, debounced +/- buttons) but forms still work without JS.
+    ============================================================================
+*@
+@model IEnumerable<DotNetBookstore.Models.CartItem>
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<div class="container py-5">
+    <div class="bg-primary bg-gradient text-white rounded-4 shadow-sm p-4 mb-4 text-center">
+        <h1 class="display-6 m-0"><i class="bi bi-cart4 me-2" aria-hidden="true"></i>Your Cart</h1>
+        <p class="lead opacity-75 mb-0">Review your selected books before checkout</p>
+    </div>
+
+    @* Simple checkout stepper for clarity *@
+    <nav aria-label="Checkout steps" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0 d-flex gap-2">
+            <li class="breadcrumb-item active px-3 py-2 rounded-3 bg-light text-body">1. Cart</li>
+            <li class="breadcrumb-item px-3 py-2 rounded-3 bg-white text-muted">2. Shipping</li>
+            <li class="breadcrumb-item px-3 py-2 rounded-3 bg-white text-muted">3. Payment</li>
+        </ol>
+    </nav>
+
+    <style>
+            /* Small UI tweaks for the cart page */
+            .cart-item-row:hover {
+                background: rgba(0,0,0,0.02);
+            }
+            /* Tighter, more compact quantity controls */
+            .qty-controls .btn {
+                width: 2rem;
+                height: 2rem;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qty-controls input[type=number] {
+                height: 2rem;
+                padding: 0 .35rem;
+                min-width: 3.2rem;
+            }
+
+            .save-qty-btn {
+                height: 2rem;
+                padding: .15rem .45rem;
+            }
+
+            .table td, .table th {
+                vertical-align: middle;
+            }
+
+            .order-summary.sticky-md-top {
+                position: sticky;
+                top: 1.5rem;
+            }
+
+            @@media (max-width: 991.98px) {
+                .order-summary.sticky-md-top {
+                    position: static;
+                    top: auto;
+                }
+            }
+    </style>
+
+    @if (!(Model?.Any() ?? false))
+    {
+        <div class="card border-0 shadow-sm mx-auto text-center p-5" style="max-width:560px;">
+            <div class="mb-3">
+                <i class="bi bi-emoji-frown text-warning" style="font-size:4rem;" aria-hidden="true"></i>
+            </div>
+            <h4 class="fw-semibold mb-3">Your cart is empty</h4>
+            <p class="text-muted mb-4">Browse our collection and add books you love.</p>
+            <a asp-controller="Shop" asp-action="Index" class="btn btn-lg btn-success px-4"><i class="bi bi-bag-plus me-1"></i> Start Shopping</a>
+        </div>
+    }
+    else
+    {
+        // If there's a pending order in session, show a small banner so the user
+        // knows they can resume checkout (helpful if they left during payment).
+        var pendingExists = Context.Session.GetString("PendingOrder") != null;
+        if (pendingExists)
+        {
+            <div class="alert alert-warning">You have a pending checkout. <a asp-controller="Orders" asp-action="Checkout">Continue checkout</a></div>
+        }
+        decimal total = 0M;
+        <div class="row g-4">
+            <div class="col-12 col-lg-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <h2 class="h5 mb-0"><i class="bi bi-list-check text-primary me-2"></i>Items in Cart</h2>
+                            <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Continue Shopping</a>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <caption class="visually-hidden">Shopping cart items</caption>
+                                <thead class="table-light">
+                                    <tr class="text-uppercase small text-muted">
+                                        <th style="min-width:180px;">Title</th>
+                                        <th class="text-center" style="width:110px;">Cover</th>
+                                        <th class="text-end" style="width:120px;">Price</th>
+                                        <th class="text-center" style="width:110px;">Qty</th>
+                                        <th class="text-end" style="width:120px;">Subtotal</th>
+                                        <th style="width:90px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        var lineTotal = item.Price * item.Quantity;
+                                        total += lineTotal;
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Books" asp-action="Details" asp-route-id="@item.BookId" class="fw-semibold text-decoration-none text-dark">
+                                                    @item.Book?.Title
+                                                </a>
+                                                <div class="small text-muted">@item.Book?.Author</div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (!string.IsNullOrWhiteSpace(item.Book?.Image))
+                                                {
+                                                    <img src="@Url.Content("~/img/books/" + item.Book.Image)" alt="@item.Book?.Title cover" class="img-fluid rounded" style="max-width:70px; max-height:95px; object-fit:cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="@Url.Content("~/img/placeholder.png")" alt="No cover" class="img-fluid rounded" style="max-width:70px; max-height:95px; object-fit:cover;" />
+                                                }
+                                            </td>
+                                            <td class="text-end text-success fw-semibold">@string.Format("{0:C}", item.Price)</td>
+                                            <td class="text-center">
+                                                @* Quantity update form: this small form posts to the
+                                                   ShopController.UpdateQuantity action and is protected
+                                                   by an antiforgery token. Using POST for quantity
+                                                   changes follows best practices: avoid state changes
+                                                   via GET requests. *@
+                                                <form asp-controller="Shop" asp-action="UpdateQuantity" method="post" class="qty-form d-inline-flex align-items-center">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                    <div class="qty-controls text-center">
+                                                        <input type="number" name="quantity" value="@item.Quantity" min="1" max="1000" step="1" class="form-control text-center mb-1" style="width:4.5rem; margin:0 auto;" aria-label="Quantity" />
+                                                        <div class="d-flex justify-content-center gap-2">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" data-action="decrement" aria-label="Decrease quantity" data-bs-toggle="tooltip" title="Decrease" style="width:1.6rem; height:1.6rem; padding:0;"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" data-action="increment" aria-label="Increase quantity" data-bs-toggle="tooltip" title="Increase" style="width:1.6rem; height:1.6rem; padding:0;"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+                                                            <button type="submit" class="btn btn-outline-success btn-sm save-qty-btn" title="Save quantity" data-bs-toggle="tooltip" aria-label="Save quantity" style="height:1.6rem;padding:0 .35rem;">
+                                                                <i class="bi bi-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                            <td class="text-end fw-semibold">@string.Format("{0:C}", lineTotal)</td>
+                                            <td class="text-end">
+                                                <form asp-controller="Shop" asp-action="RemoveFromCart" method="post" onsubmit="return confirmDelete();" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@item.CartItemId" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from cart">
+                                                        <i class="bi bi-cart-x" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-info">
+                                        <td colspan="4" class="text-end fw-semibold">Total</td>
+                                        <td class="text-end fw-bold h6">@string.Format("{0:C}", total)</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4">
+                            <div class="order-2 order-md-1">
+                                <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Continue Shopping</a>
+                            </div>
+                            <div class="order-1 order-md-2 text-md-end">
+                                <a class="btn btn-primary btn-lg px-4" asp-controller="Orders" asp-action="Checkout">
+                                    <i class="bi bi-credit-card me-1" aria-hidden="true"></i> Checkout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card shadow-sm rounded-4 p-3 order-summary sticky-md-top">
+                    <h3 class="h6 mb-3">Order summary</h3>
+                    <dl class="row small">
+                        <dt class="col-6 text-muted">Items</dt>
+                        <dd class="col-6 text-end">@Model.Sum(i => i.Quantity)</dd>
+                        <dt class="col-6 text-muted">Subtotal</dt>
+                        <dd class="col-6 text-end">@string.Format("{0:C}", total)</dd>
+                        <dt class="col-6 text-muted">Estimated tax</dt>
+                        <dd class="col-6 text-end">@string.Format("{0:C}", Math.Round(total * 0.13m, 2))</dd>
+                        <dt class="col-6 text-muted">Total</dt>
+                        <dd class="col-6 text-end h5 fw-bold">@string.Format("{0:C}", total + Math.Round(total * 0.13m, 2))</dd>
+                    </dl>
+                    <div class="d-grid">
+                        <a asp-controller="Orders" asp-action="Checkout" class="btn btn-success btn-lg">Proceed to Checkout</a>
+                    </div>
+                    <small class="text-muted d-block mt-2">Prices shown include estimated tax. Shipping calculated at checkout.</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete() {
+            return confirm('Remove this item from your cart?');
+        }
+
+        // Auto-submit quantity update on blur or Enter key for better UX
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                // quantity forms with increment/decrement buttons
+                const qtyForms = document.querySelectorAll('.qty-form');
+                qtyForms.forEach(function(form) {
+                    const input = form.querySelector('input[name="quantity"]');
+                    if (!input) return;
+
+                    // wire plus/minus buttons
+                    form.querySelectorAll('[data-action]').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            const action = btn.getAttribute('data-action');
+                            let val = parseInt(input.value || '0', 10) || 0;
+                            if (action === 'increment') val++;
+                            if (action === 'decrement') val = Math.max(1, val - 1);
+                            input.value = val;
+                            // debounce submit to allow multiple quick clicks
+                            if (form._submitTimer) clearTimeout(form._submitTimer);
+                            form._submitTimer = setTimeout(function() {
+                                try { form.submit(); } catch (e) { /* ignore */ }
+                            }, 250);
+                        });
+                    });
+
+                    // on blur, submit the parent form
+                    input.addEventListener('blur', function() {
+                        // Submitting on blur improves UX for keyboard users. Because
+                        // the form uses a normal POST with an antiforgery token, this
+                        // works even when JavaScript is enabled or disabled.
+                        try { form.submit(); } catch (e) { /* ignore */ }
+                    });
+
+                    // on Enter, submit and prevent default form navigation
+                    input.addEventListener('keydown', function(e) {
+                        // Intercept Enter so the page doesn't inadvertently
+                        // navigate; instead we submit the form via POST which
+                        // triggers the UpdateQuantity action (PRG follows).
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            try { form.submit(); } catch (err) { /* ignore */ }
+                        }
+                    });
+
+                    // show inline spinner when form is submitted (prevent double submits)
+                    form.addEventListener('submit', function(ev) {
+                        try {
+                            const btn = form.querySelector('.save-qty-btn');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                            }
+                            // disable other inputs briefly
+                            form.querySelectorAll('input, button').forEach(function(el) { if (el !== btn) el.disabled = true; });
+                        } catch (e) { }
+                    });
+                });
+
+                // initialize bootstrap tooltips for quantity buttons
+                if (window.bootstrap && bootstrap.Tooltip) {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function(el) { return new bootstrap.Tooltip(el); });
+                }
+            });
+        })();
+    </script>
+}

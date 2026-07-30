@@ -1,0 +1,302 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Shared/_Layout.cshtml
+ * PURPOSE: The master layout template that wraps EVERY page in the application.
+ *          Think of it as the "shell" — it defines the HTML structure that
+ *          every other view is inserted into. Individual views supply only
+ *          their unique body content via @RenderBody().
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. Layout template     — avoids repeating <head>, <nav>, <footer>, and
+ *                           script tags in every view. Changes here apply
+ *                           site-wide automatically.
+ *  2. @RenderBody()       — the placeholder where the content of the calling
+ *                           view is inserted. Each view's HTML replaces this.
+ *  3. @RenderSectionAsync — optional named sections that child views can fill in.
+ *                           "Scripts" is used by form views to inject their
+ *                           page-specific JavaScript (e.g., validation scripts).
+ *  4. asp-* Tag Helpers   — server-side attributes (asp-controller, asp-action,
+ *                           asp-area) that generate correct href/action URLs
+ *                           at render time, taking routing into account.
+ *  5. TempData            — a one-request storage bag (like a flash message).
+ *                           Set in a controller POST action and consumed here
+ *                           on the very next GET request to show toast alerts.
+ *  6. Active nav link     — we read the current controller from route data and
+ *                           apply the Bootstrap "active" class to highlight the
+ *                           correct nav item for the current page.
+ *  7. asp-append-version  — adds a content-hash fingerprint to the CSS/JS URL
+ *                           (e.g., site.css?v=abc123). Forces browsers to reload
+ *                           the file after a deployment instead of serving a
+ *                           stale cached version.
+ * ============================================================================
+ *@
+
+@using Microsoft.AspNetCore.Http
+@{
+    @* Read the current controller name from route data so we can highlight
+       the active nav link below. The ?? "" fallback prevents null issues. *@
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    // Read cart item count from session (defaults to 0)
+    var cartCount = 0;
+    var ctx = ViewContext?.HttpContext;
+    if (ctx?.Session != null)
+    {
+        cartCount = ctx.Session.GetInt32("ItemCount") ?? 0;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    @* viewport meta tag makes the layout responsive on mobile devices *@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    @* ViewData["Title"] is set by each individual view's @{ ViewData["Title"] = "..."; } block *@
+    <title>@ViewData["Title"] - DotNet Bookstore</title>
+
+    @* importmap stub required by .NET 10's static asset pipeline *@
+    <script type="importmap"></script>
+
+    @* Bootstrap 5 CSS — the utility-first responsive framework *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    @* Bootstrap Icons CDN — vector icon font used throughout the UI *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    @* Our custom design system — loaded AFTER Bootstrap so we can override its defaults *@
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @* Auto-generated scoped CSS for components (from .razor.css files in .NET 10) *@
+    <link rel="stylesheet" href="~/DotNetBookstore.styles.css" asp-append-version="true" />
+</head>
+
+@* d-flex flex-column min-vh-100 — Bootstrap utilities that make the footer
+   stick to the bottom of the viewport even on short pages *@
+<body class="d-flex flex-column min-vh-100">
+
+    @* ── Navigation Bar ─────────────────────────────────────────────────────── *@
+    <header>
+        @* navbar-expand-sm: collapses to a hamburger menu on screens < 576px
+           navbar-dark:      white text/icons on the dark brand gradient background *@
+        <nav class="navbar navbar-expand-sm navbar-dark mb-4">
+            <div class="container">
+
+                @* Brand logo link — asp-* Tag Helpers generate: href="/" *@
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-badge"><i class="bi bi-book-half text-warning"></i></span>DotNet Bookstore
+                </a>
+
+                @* Hamburger button — visible only on mobile; toggles the collapsed nav *@
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                @* Collapsible nav links — hidden on mobile until the hamburger is clicked *@
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+
+                        @* Active class logic: compare current controller with link's target.
+                           The ternary @(ctrl == "Home" ? "active" : "") adds "active" only
+                           when we're on a Home controller page, highlighting the nav item. *@
+                        <li class="nav-item">
+                            <a class="nav-link @(ctrl == "Home" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ctrl == "Shop" ? "active" : "")"
+                               asp-area="" asp-controller="Shop" asp-action="Index">
+                                <i class="bi bi-cart me-1"></i>Shop
+                            </a>
+                        </li>
+
+                        @* Direct link to the shopping cart page with icon and badge *@
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.ActionDescriptor.DisplayName?.Contains("Cart") == true ? "active" : "")"
+                               asp-area="" asp-controller="Shop" asp-action="Cart" title="View cart">
+                                <i class="bi bi-bag-heart me-1" aria-hidden="true"></i>
+                                <span class="badge bg-secondary ms-1">@cartCount</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ctrl == "Orders" ? "active" : "")"
+                               asp-area="" asp-controller="Orders" asp-action="History">
+                                <i class="bi bi-receipt me-1"></i>Orders
+                            </a>
+                        </li>
+
+                        @* User.Identity.IsAuthenticated is a boolean indicating whether the current user is authenticated. *@
+                        @* Example: @if (User.Identity.IsAuthenticated) { /* show user-only UI */ } *@
+
+                        @* User.IsInRole("Administrator") returns true when the current user is in the
+                           'Administrator' role. The following conditional renders the Categories
+                           navigation item only for administrators. *@
+                        @if (User.IsInRole("Administrator"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ctrl == "Categories" ? "active" : "")"
+                                   asp-area="" asp-controller="Categories" asp-action="Index">
+                                    <i class="bi bi-tags me-1"></i>Categories
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ctrl == "Books" ? "active" : "")"
+                                   asp-area="" asp-controller="Books" asp-action="Index">
+                                    <i class="bi bi-journal-bookmark me-1"></i>Books
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    @* _LoginPartial is a partial view that shows Login/Register links
+                       for guests, or the username + Logout button for signed-in users. *@
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    @* ── TempData Toast Notifications ───────────────────────────────────────── *@
+    @* TempData is a one-request dictionary. A POST action sets TempData["SuccessMessage"]
+       or TempData["ErrorMessage"] before redirecting, and this layout reads and displays
+       it on the very next page load. After rendering, TempData is automatically cleared.
+       The "is string" pattern check is null-safe and avoids an explicit cast. *@
+
+    @if (TempData["SuccessMessage"] is string successMsg)
+    {
+        @* Bootstrap dismissible alert — the btn-close button calls Bootstrap's JS
+           to add 'd-none' to the alert, hiding it without a page reload. *@
+        <div class="container mb-3">
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 flex-shrink-0"></i>
+                <div>@successMsg</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] is string errorMsg)
+    {
+        <div class="container mb-3">
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-exclamation-circle-fill fs-5 flex-shrink-0"></i>
+                <div>@errorMsg</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @* TempData-based toast for cart actions (Add/Update/Remove) *@
+    @if (TempData["CartMessage"] is string cartMsg)
+    {
+        var cartMsgType = (TempData["CartMessageType"] as string) ?? "success";
+        var toastClass = "text-bg-success";
+        if (cartMsgType == "warning")
+        {
+            toastClass = "text-bg-warning";
+        }
+        else if (cartMsgType == "info")
+        {
+            toastClass = "text-bg-info";
+        }
+
+        <div class="position-fixed top-0 end-0 p-3" style="z-index:1100">
+            <div id="cartToast" class="toast align-items-center @toastClass border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">@cartMsg</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ── Main content area ───────────────────────────────────────────────────── *@
+    @* flex-grow-1 makes this container expand to fill available vertical space,
+       which pushes the footer down to the bottom of the viewport. *@
+    <div class="container flex-grow-1">
+        <main role="main" class="pb-4">
+            @* @RenderBody() is where every child view's HTML gets injected.
+               This is the core of the layout template pattern. *@
+            @RenderBody()
+        </main>
+    </div>
+
+    @* ── Footer ──────────────────────────────────────────────────────────────── *@
+    @* mt-auto pushes the footer to the bottom; the brand gradient matches the navbar *@
+    <footer class="text-white mt-auto py-4">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-md-4 text-center text-md-start">
+                    <div class="fw-semibold">
+                        <i class="bi bi-book-half me-2 text-warning"></i>DotNet Bookstore
+                    </div>
+                    <div class="text-white-50 small mt-1">Modern book catalogue management</div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <small class="text-white-50">
+                        @* DateTime.Now.Year automatically shows the current year in the copyright *@
+                        <i class="bi bi-c-circle me-1"></i>@DateTime.Now.Year DotNet Bookstore
+                    </small>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    @* asp-* Tag Helpers generate correct URL for the Privacy page *@
+                    <a class="text-white-50 text-decoration-none me-3 small"
+                       asp-area="" asp-controller="Home" asp-action="Privacy">
+                        <i class="bi bi-shield-lock me-1"></i>Privacy
+                    </a>
+                    @* rel="noopener" is a security best practice for external links opened
+                       in a new tab — it prevents the new page from accessing window.opener *@
+                    <a class="text-white-50 text-decoration-none small"
+                       href="https://github.com/Dario-Hesami/DotNetBookstore-S26.git"
+                       target="_blank" rel="noopener">
+                        <i class="bi bi-github me-1"></i>GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    @* ── JavaScript files (loaded at end of body for faster page rendering) ─── *@
+
+    @* jQuery — required by jQuery Validation (used in form views) *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    @* Bootstrap bundle includes Popper.js (for dropdowns/tooltips) + Bootstrap JS *@
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* Our custom JavaScript (currently a stub — add your own logic in wwwroot/js/site.js) *@
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+            // Show cart toast when present in layout
+            (function() {
+                document.addEventListener('DOMContentLoaded', function() {
+                    var toastEl = document.getElementById('cartToast');
+                    if (toastEl && window.bootstrap && bootstrap.Toast) {
+                        var t = new bootstrap.Toast(toastEl, { delay: 4000 });
+                        t.show();
+                    }
+                });
+            })();
+    </script>
+
+    @* @RenderSectionAsync("Scripts", required: false) — optional section that
+       individual views can fill in with their own <script> blocks.
+       required: false means pages without a @section Scripts { } are fine too.
+       Example usage in a form view:
+           @section Scripts {
+               @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+           } *@
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

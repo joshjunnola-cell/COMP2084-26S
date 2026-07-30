@@ -1,0 +1,102 @@
+@*
+ * ============================================================================
+ * DotNet Bookstore — In-Class ASP.NET Core MVC Project
+ * Course: COMP2084 | Georgian College | Summer 2026
+ * Instructor: Dario Hesami
+ * ============================================================================
+ *
+ * FILE:    Views/Shared/Error.cshtml
+ * PURPOSE: The global error page shown when an unhandled exception occurs in
+ *          production. It is mapped in Program.cs via:
+ *            app.UseExceptionHandler("/Home/Error");
+ *          The HomeController.Error() action populates the ErrorViewModel and
+ *          passes it to this view.
+ *
+ * KEY CONCEPTS FOR STUDENTS:
+ *  1. @model directive     — declares the C# type of the data object passed to
+ *                            this view by the controller. Razor generates strongly
+ *                            typed access via the "Model" property.
+ *  2. ErrorViewModel       — a ViewModel (not a database entity) that carries
+ *                            only what the Error view needs: the request ID.
+ *  3. Model.ShowRequestId  — the view calls a computed property from the model
+ *                            to decide whether to render the Request ID panel.
+ *                            This keeps display logic inside the model, not the view.
+ *  4. Production vs Dev    — in Development mode, ASP.NET Core shows a detailed
+ *                            exception page (stack trace, source). In Production
+ *                            (this view) it shows a friendly message — never
+ *                            expose stack traces to end users in production.
+ *  5. ASPNETCORE_ENVIRONMENT — the environment variable that controls which mode
+ *                            is active. Set it in Properties/launchSettings.json
+ *                            for local development.
+ * ============================================================================
+ *@
+
+@model ErrorViewModel
+
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-7 col-md-9">
+
+        @* ── Error icon and headline ─────────────────────────────────────── *@
+        <div class="text-center mb-5">
+            <div style="font-size:5rem; line-height:1; margin-bottom:.75rem;">
+                <i class="bi bi-exclamation-octagon-fill text-danger"></i>
+            </div>
+            <h1 class="fw-bold text-danger section-title">Something went wrong</h1>
+            <p class="text-muted">An error occurred while processing your request.</p>
+        </div>
+
+        @* ── Request ID panel (shown only if a request ID is available) ────── *@
+        @* Model.ShowRequestId returns true only when Model.RequestId is non-empty.
+           The request ID can be copied and matched against server logs to find
+           the exact error entry for debugging purposes. *@
+        @if (Model.ShowRequestId)
+        {
+            <div class="alert alert-secondary d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+                <div>
+                    <strong>Request ID:</strong>
+                    @* <code> renders the ID in a monospace font, visually distinct
+                       from the surrounding text — good for identifiers and code values *@
+                    <code>@Model.RequestId</code>
+                </div>
+            </div>
+        }
+
+        @* ── Development mode hint ────────────────────────────────────────── *@
+        @* This card reminds developers to switch to Development mode for
+           full stack trace details during debugging.
+           IMPORTANT: never enable Development mode on a publicly accessible server. *@
+        <div class="card shadow border-0">
+            <div class="card-header py-3" style="background:linear-gradient(to right,#fefce8,#fef9c3);">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-wrench me-2 text-warning"></i>Development Mode
+                </h5>
+            </div>
+            <div class="card-body p-4 text-muted">
+                <p>
+                    Switching to <strong>Development</strong> environment will display more detailed information
+                    about the error that occurred.
+                </p>
+                <p class="mb-0">
+                    <strong>The Development environment should not be enabled for deployed applications</strong>
+                    as it may expose sensitive exception details to end users.
+                    For local debugging, set the <strong>ASPNETCORE_ENVIRONMENT</strong> variable to
+                    <code>Development</code> and restart the app.
+                </p>
+            </div>
+        </div>
+
+        @* ── Return home button ───────────────────────────────────────────── *@
+        <div class="mt-4 text-center">
+            @* asp-* Tag Helpers generate: href="/Home/Index" *@
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-5">
+                <i class="bi bi-house-door me-1"></i>Return Home
+            </a>
+        </div>
+
+    </div>
+</div>
